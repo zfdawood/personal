@@ -1,0 +1,3 @@
+*.bak-*
+configs/quickshell/fonts/*.otf
+configs/quickshell/fonts/*.ttf
