@@ -51,6 +51,17 @@ before copying. If Departure Mono is in `~/.local/share/fonts`, it's copied into
 the Quickshell config; otherwise the installer prints how to fetch it. Then log
 into Hyprland.
 
+## Contrast checks
+
+```sh
+make check     # WCAG contrast of every terminal text color (fails below 4.5:1)
+make preview   # truecolor sample of the kitty palette on its own background
+make hooks     # once per clone: run `make check` before every commit
+```
+
+Rules live in `tools/contrast.py` as data (`fg on bg ≥ ratio, why`). Tweak
+colors freely; the check only says whether the result is still readable.
+
 ## Toggling dark mode
 
 Edit `~/.config/quickshell/Theme.qml`: `property bool darkMode: true`.

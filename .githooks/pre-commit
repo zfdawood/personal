@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Block commits that make any palette text color unreadable. Enable with `make hooks`.
+set -euo pipefail
+exec make --no-print-directory check
