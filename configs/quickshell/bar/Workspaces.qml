@@ -12,6 +12,13 @@ Row {
     property int count: 5
     property string screenName: ""
 
+    // The Hyprland monitor this bar sits on; falls back to the global focus
+    // if it can't be matched (e.g. before the first IPC refresh).
+    readonly property var monitor:
+        Hyprland.monitors.values.find(m => m.name === strip.screenName) ?? null
+    readonly property var shownWorkspace:
+        monitor?.activeWorkspace ?? Hyprland.focusedWorkspace
+
     Repeater {
         model: strip.count
         delegate: Rectangle {
@@ -22,8 +29,7 @@ Row {
             readonly property var hlWs:
                 Hyprland.workspaces.values.find(w => w.id === wsId) ?? null
             readonly property bool occupied: hlWs !== null
-            readonly property bool active:
-                Hyprland.focusedWorkspace && Hyprland.focusedWorkspace.id === wsId
+            readonly property bool active: strip.shownWorkspace?.id === wsId
 
             width: 16
             height: 16

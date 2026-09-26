@@ -26,10 +26,11 @@ Singleton {
     // Optional CRT scanline overlay — OFF by default (readability first).
     property bool scanlines: false
     property real scanlineOpacity: 0.06
+    readonly property color scanlineColor: "#000000"
 
     // ── Typography ──────────────────────────────────────────────────────────
     // Departure Mono is the target (chunky, pixel-ish, closest to Signalis).
-    // Falls back cleanly to JetBrains Mono if the ttf isn't installed yet.
+    // Falls back cleanly to JetBrains Mono if the otf isn't installed yet.
     readonly property string fontFamily: monoFont.status === FontLoader.Ready
         ? monoFont.name
         : "JetBrains Mono"
@@ -38,7 +39,8 @@ Singleton {
 
     FontLoader {
         id: monoFont
-        // Dropped in by install.sh; harmless if absent (fallback kicks in).
+        // Copied in by install.sh from ~/.local/share/fonts if present;
+        // harmless if absent (fallback kicks in).
         source: Qt.resolvedUrl("fonts/DepartureMono-Regular.otf")
     }
 

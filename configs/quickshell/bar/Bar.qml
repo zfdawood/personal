@@ -39,6 +39,7 @@ Scope {
                 anchors.fill: parent
                 anchors.leftMargin: Theme.gap
                 anchors.rightMargin: Theme.gap
+                anchors.bottomMargin: Theme.borderWidth   // center above the bottom edge
 
                 Workspaces {
                     id: ws
@@ -88,9 +89,9 @@ Scope {
                 opacity: Theme.scanlineOpacity
                 gradient: Gradient {
                     orientation: Gradient.Vertical
-                    GradientStop { position: 0.0; color: "#000000" }
+                    GradientStop { position: 0.0; color: Theme.scanlineColor }
                     GradientStop { position: 0.5; color: "transparent" }
-                    GradientStop { position: 1.0; color: "#000000" }
+                    GradientStop { position: 1.0; color: Theme.scanlineColor }
                 }
             }
         }

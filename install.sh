@@ -12,11 +12,13 @@ say() { printf '\033[38;2;201;123;61m::\033[0m %s\n' "$*"; }
 
 # ── Dependency check (informational — won't abort) ──────────────────────────
 say "Checking dependencies…"
-deps=(Hyprland quickshell kitty mako hyprpaper wofi)
+deps=(Hyprland kitty mako hyprpaper wofi)
 missing=()
 for d in "${deps[@]}"; do
     command -v "$d" >/dev/null 2>&1 || missing+=("$d")
 done
+# Quickshell ships as `quickshell` and/or `qs` depending on the package.
+command -v quickshell >/dev/null 2>&1 || command -v qs >/dev/null 2>&1 || missing+=(quickshell)
 if ((${#missing[@]})); then
     printf '   missing: %s\n' "${missing[*]}"
     printf '   Arch: sudo pacman -S hyprland kitty mako hyprpaper wofi\n'
@@ -26,11 +28,10 @@ fi
 # ── Deploy each config dir, with backup ─────────────────────────────────────
 for dir in hypr quickshell kitty mako; do
     target="$DEST/$dir"
-    if [[ -e "$target" && ! -L "$target" ]]; then
+    # Symlinks (e.g. stow-managed dotfiles) are moved aside too, not deleted.
+    if [[ -e "$target" || -L "$target" ]]; then
         say "Backing up existing $target -> $target.bak-$STAMP"
         mv "$target" "$target.bak-$STAMP"
-    elif [[ -L "$target" ]]; then
-        rm -f "$target"
     fi
     mkdir -p "$DEST"
     say "Installing $dir"
@@ -38,13 +39,18 @@ for dir in hypr quickshell kitty mako; do
 done
 
 # ── Fonts: Departure Mono (optional but recommended) ────────────────────────
-FONTDIR="$HOME/.local/share/fonts"
+FONTDIR="${XDG_DATA_HOME:-$HOME/.local/share}/fonts"
+SYSFONT="$FONTDIR/DepartureMono-Regular.otf"
 QSFONT="$DEST/quickshell/fonts/DepartureMono-Regular.otf"
+mkdir -p "$(dirname "$QSFONT")"   # git doesn't track the empty fonts/ dir
+if [[ ! -f "$QSFONT" && -f "$SYSFONT" ]]; then
+    say "Copying Departure Mono into the Quickshell config"
+    cp "$SYSFONT" "$QSFONT"
+fi
 if [[ ! -f "$QSFONT" ]]; then
-    say "Departure Mono not bundled. Fetch it (recommended):"
-    printf '   curl -L -o /tmp/dm.zip https://github.com/rektdeckard/departure-mono/releases/latest/download/DepartureMono-1.500.zip\n'
-    printf '   unzip -j /tmp/dm.zip "*DepartureMono-Regular.otf" -d "%s"\n' "$FONTDIR"
-    printf '   cp "%s/DepartureMono-Regular.otf" "%s"\n' "$FONTDIR" "$(dirname "$QSFONT")"
+    say "Departure Mono not found. Fetch it (recommended), then re-run ./install.sh:"
+    printf '   curl -L -o /tmp/dm.zip https://github.com/rektdeckard/departure-mono/releases/download/v1.500/DepartureMono-1.500.zip\n'
+    printf '   mkdir -p "%s" && unzip -j /tmp/dm.zip "*DepartureMono-Regular.otf" -d "%s"\n' "$FONTDIR" "$FONTDIR"
     printf '   fc-cache -f     # (UI falls back to JetBrains Mono until then)\n'
 fi
 

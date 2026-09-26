@@ -38,7 +38,7 @@ and future palette tweaks one-file changes.
 
 Hyprland (>0.55), Quickshell (>0.3.0), hyprpaper, kitty, mako, wofi.
 On Arch: `sudo pacman -S hyprland kitty mako hyprpaper wofi` and Quickshell from
-the AUR (`yay -S quickshell`).
+the AUR (`yay -S quickshell`). Optional: nautilus (bound to `SUPER+E`).
 
 ## Install
 
@@ -47,7 +47,9 @@ the AUR (`yay -S quickshell`).
 ```
 
 Backs up any existing `~/.config/{hypr,quickshell,kitty,mako}` to `*.bak-<timestamp>`
-before copying. Then log into Hyprland.
+before copying. If Departure Mono is in `~/.local/share/fonts`, it's copied into
+the Quickshell config; otherwise the installer prints how to fetch it. Then log
+into Hyprland.
 
 ## Toggling dark mode
 
@@ -61,3 +63,7 @@ First working build: top bar (workspaces, clock, cpu/ram/vol meters, status
 dot) + Hyprland/kitty/mako theming. Not yet built: app launcher styling,
 notification-center panel, on-screen-display (volume/brightness) popups, dark
 variants of the Hyprland/kitty configs.
+
+## License
+
+GPL-3.0 — see [LICENSE](LICENSE).

@@ -19,7 +19,9 @@ Singleton {
     function _sampleCpu(text) {
         // First line: "cpu  user nice system idle iowait irq softirq steal ..."
         const line = text.split("\n")[0];
-        const parts = line.trim().split(/\s+/).slice(1).map(Number);
+        // guest/guest_nice (fields 9-10) are already counted in user/nice, so
+        // stop at steal to avoid double-counting VM time.
+        const parts = line.trim().split(/\s+/).slice(1, 9).map(Number);
         if (parts.length < 5)
             return;
         const idle = parts[3] + (parts[4] || 0);        // idle + iowait
@@ -28,7 +30,8 @@ Singleton {
             total += p;
         const dTotal = total - root._prevTotal;
         const dIdle = idle - root._prevIdle;
-        if (dTotal > 0)
+        // First sample has no baseline (it would be the since-boot average).
+        if (root._prevTotal > 0 && dTotal > 0)
             root.cpu = Math.max(0, Math.min(1, (dTotal - dIdle) / dTotal));
         root._prevTotal = total;
         root._prevIdle = idle;
