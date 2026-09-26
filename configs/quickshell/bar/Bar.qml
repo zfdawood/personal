@@ -72,7 +72,7 @@ Scope {
                     BarMeter {
                         label: "vol"
                         value: Audio.muted ? 0 : Audio.volume
-                        fillColor: Audio.muted ? Theme.textTertiary : Theme.dustyRose
+                        fillColor: Audio.muted ? Theme.textTertiary : Theme.media
                     }
 
                     StatusDot {
@@ -89,9 +89,9 @@ Scope {
                 opacity: Theme.scanlineOpacity
                 gradient: Gradient {
                     orientation: Gradient.Vertical
-                    GradientStop { position: 0.0; color: Theme.scanlineColor }
+                    GradientStop { position: 0.0; color: Theme.scanline }
                     GradientStop { position: 0.5; color: "transparent" }
-                    GradientStop { position: 1.0; color: Theme.scanlineColor }
+                    GradientStop { position: 1.0; color: Theme.scanline }
                 }
             }
         }

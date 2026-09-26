@@ -18,21 +18,26 @@ the horror, minus the clinical grey-and-red.
 ## Structure
 
 ```
+tokens.toml         ← every color: swatches → roles (light/dark) → terminal
+templates/          ← mako.config (mako has no include, so it's templated whole)
+tools/              ← gen.py (tokens → configs), contrast.py (WCAG check)
 configs/
   quickshell/
-    Theme.qml       ← the single source of truth: palette, borders, fonts, darkMode
+    Theme.qml       ← structure (borders, sizes, fonts), darkMode, role names
+    Palette.qml     ← GENERATED light/dark role colors
     Audio.qml       ← default-sink volume/mute  (singleton)
     Sys.qml         ← cpu + ram from /proc       (singleton)
     shell.qml       ← entry point
     bar/            ← Bar, Workspaces, Clock, BarMeter, StatusDot
-  hypr/             ← hyprland.conf (square, amber borders), hyprpaper.conf
-  kitty/            ← warm terminal palette
-  mako/             ← notification toasts
+  hypr/             ← hyprland.conf, hyprpaper.conf, colors.conf (GENERATED)
+  kitty/            ← kitty.conf, colors.conf (GENERATED)
+  mako/             ← config (GENERATED from templates/mako.config)
 ```
 
-**To restyle anything, edit `Theme.qml`.** Every component reads that singleton
-— no hex codes are hardcoded elsewhere. That's what makes the light/dark toggle
-and future palette tweaks one-file changes.
+**To change a color, edit `tokens.toml`, then `make`.** Quickshell, Hyprland,
+kitty and mako all derive from it; no hex codes are hardcoded anywhere else.
+Generated files are committed, so `./install.sh` works on a fresh clone, and
+`make check` fails if they've drifted from the tokens.
 
 ## Dependencies
 
@@ -51,22 +56,26 @@ before copying. If Departure Mono is in `~/.local/share/fonts`, it's copied into
 the Quickshell config; otherwise the installer prints how to fetch it. Then log
 into Hyprland.
 
-## Contrast checks
+## Tokens and checks
 
 ```sh
-make check     # WCAG contrast of every terminal text color (fails below 4.5:1)
-make preview   # truecolor sample of the kitty palette on its own background
+make           # regenerate configs/ from tokens.toml
+make check     # generated files are current + WCAG contrast of every text color
+make preview   # truecolor sample of the terminal palette on its own background
 make hooks     # once per clone: run `make check` before every commit
+make install   # make + ./install.sh
 ```
 
-Rules live in `tools/contrast.py` as data (`fg on bg ≥ ratio, why`). Tweak
-colors freely; the check only says whether the result is still readable.
+Contrast rules live in `tools/contrast.py` as data (`fg on bg ≥ ratio, why`),
+checked against the terminal colors and both role sets. Tweak colors freely;
+the check only says whether the result is still readable.
 
 ## Toggling dark mode
 
 Edit `~/.config/quickshell/Theme.qml`: `property bool darkMode: true`.
-Quickshell hot-reloads — the whole shell swaps instantly. (Hyprland/kitty border
-colors are set per-config; a matching dark set is a follow-up.)
+Quickshell hot-reloads — the whole shell swaps instantly. (Hyprland, kitty and
+mako use the light roles; a dark terminal palette and a single tokens-level
+mode switch are follow-ups.)
 
 ## Status
 

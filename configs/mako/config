@@ -1,5 +1,10 @@
+# GENERATED from tokens.toml by tools/gen.py — edit tokens.toml, then run `make`.
+# Template: templates/mako.config. Uses roles.light.
+
 # ── Warm Terminal / Cozy Archive — mako notifications ───────────────────────
 # Square, thick-bordered "instrument readout" toasts on parchment.
+# mako has no include directive, so this whole file is a template; ${role}
+# placeholders are filled from tokens.toml [roles.light].
 
 font=Departure Mono 10
 background-color=#F3E9D8

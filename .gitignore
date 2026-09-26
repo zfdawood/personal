@@ -1,3 +1,4 @@
 *.bak-*
 configs/quickshell/fonts/*.otf
 configs/quickshell/fonts/*.ttf
+__pycache__/

@@ -34,7 +34,7 @@ Row {
             width: 16
             height: 16
             radius: Theme.radius
-            color: active ? Theme.accent : "transparent"
+            color: active ? Theme.accentSolid : "transparent"
             border.width: active ? 0 : (occupied ? Theme.borderWidth : Theme.borderThin)
             border.color: occupied ? Theme.textSecondary : Theme.border
 
@@ -44,7 +44,7 @@ Row {
                 font.family: Theme.fontFamily
                 font.pixelSize: Theme.fontSizeSmall
                 color: sq.active
-                    ? Theme.bgPrimary
+                    ? Theme.onAccentSolid
                     : (sq.occupied ? Theme.textPrimary : Theme.textTertiary)
             }
 

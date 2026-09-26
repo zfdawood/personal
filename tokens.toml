@@ -1,0 +1,114 @@
+# ── Warm Terminal / Cozy Archive — design tokens ────────────────────────────
+# The single source of truth for every color on the desktop. After editing:
+#     make          # regenerate configs/ from this file
+#     make check    # contrast + "generated files are up to date"
+#
+# Three layers, each referring only to the one above it:
+#   [swatch]       raw paint, named for what it looks like
+#   [roles.*]      what a color is FOR in the UI, per mode (Quickshell reads
+#                  both; Hyprland and mako use roles.light)
+#   [terminal]     kitty chrome + the 16 ANSI colors (day palette)
+# Values below the swatch layer are swatch names; a literal "#RRGGBB" also works.
+
+[swatch]
+# Neutrals, light → dark
+parchment_hi   = "#FBF6EC"
+parchment      = "#F3E9D8"
+parchment_deep = "#E3D5B8"
+vellum         = "#D9CBB0"
+straw          = "#C9B896"
+leather        = "#8A7654"
+leather_ink    = "#776649"   # leather darkened to pass 4.5:1 on parchment
+walnut         = "#5C4A2E"
+umber_line     = "#4A3F35"
+umber          = "#2B2420"
+umber_deep     = "#1C1713"
+black          = "#000000"
+
+# Accents. The plain name is the "fill" — mid-brightness, for meters, borders,
+# and anything that isn't text. `_ink` is the same hue darkened until it reads
+# as text on parchment (≥4.5:1); `_ink_bright` is more saturated, same rule.
+amber            = "#C97B3D"
+amber_ink        = "#8A5327"
+amber_ink_bright = "#A05419"
+rose             = "#B5654F"
+rose_ink         = "#904E3D"
+rose_ink_bright  = "#A84D34"
+moss             = "#7C8B6F"
+moss_ink         = "#59634F"
+moss_ink_bright  = "#5E6D52"
+slate_ink        = "#56626B"
+slate_ink_bright = "#596A78"
+mauve_ink        = "#7E5656"
+mauve_ink_bright = "#935858"
+teal_ink         = "#50645F"
+teal_ink_bright  = "#526E67"
+
+# ── Roles: "day archive" ────────────────────────────────────────────────────
+[roles.light]
+bgPrimary     = "parchment"
+bgAlt         = "parchment_deep"   # recesses, meter tracks
+border        = "straw"            # hairlines, inactive borders
+borderStrong  = "leather"          # inactive window borders (Hyprland)
+textPrimary   = "umber"
+textSecondary = "walnut"           # labels
+textTertiary  = "leather"          # inactive states only (not checked as text)
+accent        = "amber"            # fills: meters, focus borders
+warning       = "rose"
+good          = "moss"
+media         = "rose"             # volume meter
+accentSolid   = "amber_ink"        # a filled accent surface that carries text…
+onAccentSolid = "parchment"        # …and the text on it
+scanline      = "black"
+
+# ── Roles: "night archive" ──────────────────────────────────────────────────
+[roles.dark]
+bgPrimary     = "umber"
+bgAlt         = "umber_deep"
+border        = "umber_line"
+borderStrong  = "leather"
+textPrimary   = "parchment"
+textSecondary = "straw"
+textTertiary  = "leather"
+accent        = "amber"            # fills are mode-stable by design
+warning       = "rose"
+good          = "moss"
+media         = "rose"
+accentSolid   = "amber"            # the plain fill already passes against umber
+onAccentSolid = "umber"
+scanline      = "black"
+
+# ── Terminal (kitty) ────────────────────────────────────────────────────────
+# ANSI semantics are kept: black is dark and white is light. Normal text uses
+# `foreground`; programs that ask for "white" draw it on black (inverse video,
+# TUIs), so white is checked against color0 rather than the parchment.
+[terminal]
+background              = "parchment"
+foreground              = "umber"
+cursor                  = "amber_ink"
+cursor_text_color       = "parchment"
+selection_background    = "parchment_deep"
+selection_foreground    = "umber"
+active_border_color     = "amber"
+inactive_border_color   = "straw"
+active_tab_background   = "amber_ink"
+active_tab_foreground   = "parchment"
+inactive_tab_background = "parchment_deep"
+inactive_tab_foreground = "walnut"
+
+color0  = "umber"             # black
+color8  = "leather_ink"       # bright black — dim text (comments, autosuggestions)
+color1  = "rose_ink"          # red
+color9  = "rose_ink_bright"
+color2  = "moss_ink"          # green
+color10 = "moss_ink_bright"
+color3  = "amber_ink"         # yellow
+color11 = "amber_ink_bright"
+color4  = "slate_ink"         # blue
+color12 = "slate_ink_bright"
+color5  = "mauve_ink"         # magenta
+color13 = "mauve_ink_bright"
+color6  = "teal_ink"          # cyan
+color14 = "teal_ink_bright"
+color7  = "vellum"            # white
+color15 = "parchment_hi"      # bright white

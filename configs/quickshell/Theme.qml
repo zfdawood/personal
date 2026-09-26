@@ -4,11 +4,10 @@ import QtQuick
 import Quickshell
 
 // ── Warm Terminal / Cozy Archive ────────────────────────────────────────────
-// The single source of truth for the whole desktop. Every component imports
-// this singleton and reads e.g. `Theme.bgPrimary` — never a hardcoded hex.
+// What every component reads: e.g. `Theme.bgPrimary`, never a hardcoded hex.
+// Structure (borders, sizes, fonts) is set here; colors come from tokens.toml.
 // Flip `darkMode` and the entire shell swaps between "day archive" (parchment)
-// and "night archive" (deep umber). The three accents are mode-stable by
-// design, so only the base/text pair inverts.
+// and "night archive" (deep umber). Colors themselves live in tokens.toml.
 Singleton {
     id: root
 
@@ -26,7 +25,6 @@ Singleton {
     // Optional CRT scanline overlay — OFF by default (readability first).
     property bool scanlines: false
     property real scanlineOpacity: 0.06
-    readonly property color scanlineColor: "#000000"
 
     // ── Typography ──────────────────────────────────────────────────────────
     // Departure Mono is the target (chunky, pixel-ish, closest to Signalis).
@@ -45,40 +43,23 @@ Singleton {
     }
 
     // ── Palette ─────────────────────────────────────────────────────────────
-    // Two named sets; `darkMode` picks which is dominant. Accents are shared.
-    readonly property var light: ({
-        bgPrimary:     "#F3E9D8",  // parchment
-        bgAlt:         "#E3D5B8",  // deeper parchment — recesses, meter tracks
-        border:        "#C9B896",  // hairline / inactive borders
-        textPrimary:   "#2B2420",  // deep umber-black (never pure black)
-        textSecondary: "#5C4A2E",  // labels, timestamps
-        textTertiary:  "#8A7654"   // worn leather — hints, inactive states
-    })
-    readonly property var dark: ({
-        bgPrimary:     "#2B2420",  // deep umber
-        bgAlt:         "#1C1713",  // recesses, meter tracks
-        border:        "#4A3F35",  // dividers
-        textPrimary:   "#F3E9D8",  // parchment, inverted to foreground
-        textSecondary: "#C9B896",  // labels
-        textTertiary:  "#8A7654"   // same worn-leather anchor, both modes
-    })
-
-    // Mode-stable accents (mid-brightness — read well on parchment AND umber).
-    readonly property color rustAmber: "#C97B3D"  // primary accent / "alarm color" stand-in
-    readonly property color dustyRose: "#B5654F"  // secondary / warnings / media
-    readonly property color sageMoss:  "#7C8B6F"  // calm / success / "everything is fine"
-
-    // ── Resolved roles (what components actually read) ──────────────────────
-    readonly property var  set:           darkMode ? dark : light
+    // Both mode sets are generated from tokens.toml into Palette.qml; edit the
+    // tokens (then `make`), not hex codes here.
+    readonly property var  set:            darkMode ? Palette.dark : Palette.light
     readonly property color bgPrimary:     set.bgPrimary
     readonly property color bgAlt:         set.bgAlt
     readonly property color border:        set.border
+    readonly property color borderStrong:  set.borderStrong
     readonly property color textPrimary:   set.textPrimary
     readonly property color textSecondary: set.textSecondary
     readonly property color textTertiary:  set.textTertiary
 
-    // Semantic aliases so widgets read intent, not color.
-    readonly property color accent:  rustAmber
-    readonly property color warning: dustyRose
-    readonly property color good:    sageMoss
+    // Semantic roles so widgets read intent, not color.
+    readonly property color accent:        set.accent          // fills: meters, focus
+    readonly property color warning:       set.warning
+    readonly property color good:          set.good
+    readonly property color media:         set.media
+    readonly property color accentSolid:   set.accentSolid     // filled surface with text on it
+    readonly property color onAccentSolid: set.onAccentSolid   // …the text
+    readonly property color scanline:      set.scanline
 }

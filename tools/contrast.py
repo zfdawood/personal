@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-"""Contrast checker for the Cozy Archive palettes.
+"""Contrast checker for the Cozy Archive tokens.
 
 Every color a program might render as *text* has to be readable against the
 background it will actually sit on. "Readable" is WCAG 2.x relative-luminance
 contrast (https://www.w3.org/TR/WCAG21/#dfn-contrast-ratio):
 
     4.5:1  minimum for normal text (AA)
-    7.0:1  enhanced (AAA) — used for the main foreground/background pair
+    7.0:1  enhanced (AAA) — used for the main body-text pairs
 
 Usage:
     tools/contrast.py            check all rules; exit 1 on any failure
-    tools/contrast.py --preview  print a truecolor sample of the kitty palette
+    tools/contrast.py --preview  print a truecolor sample of the terminal palette
 
 Stdlib only, so it runs anywhere the repo does.
 """
@@ -19,11 +19,9 @@ from __future__ import annotations
 
 import sys
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Mapping
 
-REPO = Path(__file__).resolve().parent.parent
-KITTY_CONF = REPO / "configs" / "kitty" / "kitty.conf"
+from tokens import Colors, load
 
 AA = 4.5
 AAA = 7.0
@@ -35,8 +33,6 @@ RGB = tuple[float, float, float]
 
 def parse_hex(h: str) -> RGB:
     h = h.lstrip("#")
-    if len(h) != 6:
-        raise ValueError(f"expected #RRGGBB, got #{h}")
     return (int(h[0:2], 16) / 255, int(h[2:4], 16) / 255, int(h[4:6], 16) / 255)
 
 
@@ -57,33 +53,19 @@ def contrast(a: str, b: str) -> float:
     return (hi + 0.05) / (lo + 0.05)
 
 
-# ── Config parsing ──────────────────────────────────────────────────────────
-
-def parse_kitty(text: str) -> dict[str, str]:
-    """`key value` lines → {key: value}; later keys win, as in kitty."""
-    out: dict[str, str] = {}
-    for line in text.splitlines():
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-        key, _, value = line.partition(" ")
-        out[key] = value.strip()
-    return out
-
-
 # ── Rules ───────────────────────────────────────────────────────────────────
 
 @dataclass(frozen=True)
 class Rule:
-    fg: str          # config key rendered as text…
-    bg: str          # …on top of this config key
+    fg: str          # token rendered as text…
+    bg: str          # …on top of this token
     minimum: float
     why: str
 
 
 ACCENTS = [1, 2, 3, 4, 5, 6, 9, 10, 11, 12, 13, 14]
 
-KITTY_RULES: list[Rule] = [
+TERMINAL_RULES: list[Rule] = [
     Rule("foreground", "background", AAA, "body text"),
     Rule("color0", "background", AA, "black text"),
     Rule("color8", "background", AA, "dim text (comments, autosuggestions)"),
@@ -96,6 +78,15 @@ KITTY_RULES: list[Rule] = [
     Rule("cursor_text_color", "cursor", AA, "character under the block cursor"),
     Rule("active_tab_foreground", "active_tab_background", AA, "active tab title"),
     Rule("inactive_tab_foreground", "inactive_tab_background", AA, "inactive tab title"),
+]
+
+# Applied to roles.light and roles.dark alike (bar, mako). textTertiary is
+# deliberately absent: it only marks inactive UI (empty workspaces), which
+# WCAG exempts from contrast requirements.
+ROLE_RULES: list[Rule] = [
+    Rule("textPrimary", "bgPrimary", AAA, "clock, workspace numbers, notifications"),
+    Rule("textSecondary", "bgPrimary", AA, "meter labels, low-urgency notifications"),
+    Rule("onAccentSolid", "accentSolid", AA, "active workspace number"),
 ]
 
 
@@ -128,16 +119,12 @@ def _swatch(fg: str, bg: str, text: str) -> str:
     return f"\033[38;2;{fr};{fg_};{fb};48;2;{br};{bg_};{bb}m{text}\033[0m"
 
 
-def check() -> int:
-    colors = parse_kitty(KITTY_CONF.read_text())
-    missing = sorted({k for r in KITTY_RULES for k in (r.fg, r.bg)} - colors.keys())
+def _report(title: str, rules: list[Rule], colors: Colors, tty: bool) -> list[Result]:
+    missing = sorted({k for r in rules for k in (r.fg, r.bg)} - colors.keys())
     if missing:
-        print(f"kitty.conf is missing: {', '.join(missing)}", file=sys.stderr)
-        return 1
-
-    results = evaluate(KITTY_RULES, colors)
-    tty = sys.stdout.isatty()
-    print(f"{KITTY_CONF.relative_to(REPO)}")
+        raise SystemExit(f"{title}: missing tokens {', '.join(missing)}")
+    results = evaluate(rules, colors)
+    print(title)
     for res in results:
         mark = "ok  " if res.ok else "FAIL"
         sample = _swatch(res.fg_hex, res.bg_hex, " Aa ") if tty else ""
@@ -145,13 +132,24 @@ def check() -> int:
             f"  {mark} {res.ratio:5.2f} ≥ {res.rule.minimum:<3}  "
             f"{res.rule.fg:<24} on {res.rule.bg:<22} {sample} {res.rule.why}"
         )
+    return results
+
+
+def check() -> int:
+    t = load()
+    tty = sys.stdout.isatty()
+    results = [
+        *_report("terminal", TERMINAL_RULES, t.terminal, tty),
+        *(r for mode in ("light", "dark")
+          for r in _report(f"roles.{mode}", ROLE_RULES, t.roles[mode], tty)),
+    ]
     failures = [r for r in results if not r.ok]
     print(f"{len(results) - len(failures)}/{len(results)} pass")
     return 1 if failures else 0
 
 
 def preview() -> int:
-    c = parse_kitty(KITTY_CONF.read_text())
+    c = load().terminal
     bg = c["background"]
     names = ["black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"]
     print(_swatch(c["foreground"], bg, "  default foreground on background  ".ljust(44)))
