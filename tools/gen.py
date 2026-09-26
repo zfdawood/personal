@@ -3,6 +3,7 @@
 
     tools/gen.py           write the generated files under configs/
     tools/gen.py --check   exit 1 if any generated file is out of date
+    tools/gen.py --list    print generated paths, relative to configs/
 
 Each renderer is a pure function Tokens → str; the generated files are
 committed so install.sh works on a fresh clone without running anything.
@@ -24,21 +25,22 @@ HEADER = "GENERATED from tokens.toml by tools/gen.py — edit tokens.toml, then 
 
 
 def kitty(t: Tokens) -> str:
-    width = max(map(len, t.terminal))
-    body = "\n".join(f"{k.ljust(width)}  {v}" for k, v in t.terminal.items())
-    return f"# {HEADER}\n# Included by kitty.conf.\n\n{body}\n"
+    colors = t.terminal[t.mode]
+    width = max(map(len, colors))
+    body = "\n".join(f"{k.ljust(width)}  {v}" for k, v in colors.items())
+    return f"# {HEADER}\n# Included by kitty.conf. Uses terminal.{t.mode}.\n\n{body}\n"
 
 
 def hypr(t: Tokens) -> str:
     def argb(hex_: str) -> str:
         return "0xff" + hex_[1:].lower()
 
-    light = t.roles["light"]
+    roles = t.roles[t.mode]
     return (
-        f"# {HEADER}\n# Sourced by hyprland.conf. Uses roles.light.\n\n"
-        f"$accent       = {argb(light['accent'])}\n"
-        f"$borderStrong = {argb(light['borderStrong'])}\n"
-        f"$bgPrimary    = {argb(light['bgPrimary'])}\n"
+        f"# {HEADER}\n# Sourced by hyprland.conf. Uses roles.{t.mode}.\n\n"
+        f"$accent       = {argb(roles['accent'])}\n"
+        f"$borderStrong = {argb(roles['borderStrong'])}\n"
+        f"$bgPrimary    = {argb(roles['bgPrimary'])}\n"
     )
 
 
@@ -55,6 +57,8 @@ def palette_qml(t: Tokens) -> str:
         "import QtQuick\n"
         "import Quickshell\n\n"
         "Singleton {\n"
+        f"    // tokens.toml `mode`; Theme.darkMode follows it.\n"
+        f"    readonly property bool darkMode: {'true' if t.mode == 'dark' else 'false'}\n"
         f"    readonly property var light: {obj(t.roles['light'])}\n"
         f"    readonly property var dark: {obj(t.roles['dark'])}\n"
         "}\n"
@@ -63,8 +67,8 @@ def palette_qml(t: Tokens) -> str:
 
 def mako(t: Tokens) -> str:
     template = Template((TEMPLATES / "mako.config").read_text())
-    return f"# {HEADER}\n# Template: templates/mako.config. Uses roles.light.\n\n" + template.substitute(
-        t.roles["light"]
+    return f"# {HEADER}\n# Template: templates/mako.config. Uses roles.{t.mode}.\n\n" + template.substitute(
+        t.roles[t.mode]
     )
 
 
@@ -81,6 +85,10 @@ def render(t: Tokens) -> dict[Path, str]:
 
 
 def main(argv: list[str]) -> int:
+    if "--list" in argv:
+        print("\n".join(str(p.relative_to(CONFIGS)) for p in OUTPUTS))
+        return 0
+
     rendered = render(load())
     stale = [p for p, text in rendered.items() if not p.exists() or p.read_text() != text]
 

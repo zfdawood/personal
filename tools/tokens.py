@@ -20,12 +20,15 @@ HEX = re.compile(r"#[0-9A-Fa-f]{6}")
 
 Colors = Mapping[str, str]
 
+MODES = ("light", "dark")
+
 
 @dataclass(frozen=True)
 class Tokens:
+    mode: str                         # the active mode: "light" | "dark"
     swatch: Colors
-    roles: Mapping[str, Colors]   # mode ("light" | "dark") → role → hex
-    terminal: Colors
+    roles: Mapping[str, Colors]       # mode → role → hex
+    terminal: Mapping[str, Colors]    # mode → kitty key → hex
 
 
 class TokenError(ValueError):
@@ -51,19 +54,30 @@ def _resolve(table: Mapping[str, Any], swatch: Colors, where: str) -> dict[str, 
     return out
 
 
+def _per_mode(raw: Mapping[str, Any], swatch: Colors, section: str) -> dict[str, dict[str, str]]:
+    """[section.light] / [section.dark] → resolved maps with identical keys."""
+    table = raw.get(section, {})
+    if set(table) != set(MODES):
+        raise TokenError(f"{section}: expected exactly {' and '.join(MODES)}, got {sorted(table)}")
+    out = {mode: _resolve(table[mode], swatch, f"{section}.{mode}") for mode in MODES}
+    diff = out["light"].keys() ^ out["dark"].keys()
+    if diff:
+        raise TokenError(f"{section}: light and dark must define the same keys; differ on {sorted(diff)}")
+    return out
+
+
 def parse(text: str) -> Tokens:
     raw = tomllib.loads(text)
+    mode = raw.get("mode")
+    if mode not in MODES:
+        raise TokenError(f"mode: expected one of {MODES}, got {mode!r}")
     swatch = {k: _hex(v, f"swatch.{k}") for k, v in raw["swatch"].items()}
-    roles = {
-        mode: _resolve(table, swatch, f"roles.{mode}")
-        for mode, table in raw["roles"].items()
-    }
-    if roles.keys() != {"light", "dark"}:
-        raise TokenError(f"roles: expected light and dark, got {sorted(roles)}")
-    if roles["light"].keys() != roles["dark"].keys():
-        diff = roles["light"].keys() ^ roles["dark"].keys()
-        raise TokenError(f"roles: light and dark must define the same roles; differ on {sorted(diff)}")
-    return Tokens(swatch, roles, _resolve(raw["terminal"], swatch, "terminal"))
+    return Tokens(
+        mode=mode,
+        swatch=swatch,
+        roles=_per_mode(raw, swatch, "roles"),
+        terminal=_per_mode(raw, swatch, "terminal"),
+    )
 
 
 def load(path: Path = TOKENS) -> Tokens:

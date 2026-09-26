@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # Warm Terminal / Cozy Archive — installer
 # Copies configs into ~/.config, backing up anything already there.
+#   ./install.sh                full install (backs up existing config dirs)
+#   ./install.sh --colors-only  redeploy just the generated color files, e.g.
+#                               after changing `mode` in tokens.toml (no backups:
+#                               these files are never hand-edited)
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -9,6 +13,28 @@ DEST="${XDG_CONFIG_HOME:-$HOME/.config}"
 STAMP="$(date +%Y%m%d-%H%M%S)"
 
 say() { printf '\033[38;2;201;123;61m::\033[0m %s\n' "$*"; }
+
+# Nudge whatever is running to pick up new configs. Quickshell hot-reloads on
+# its own; Hyprland watches its main file but not sourced ones.
+reload_running() {
+    pgrep -x Hyprland >/dev/null 2>&1 && hyprctl reload >/dev/null 2>&1 || true
+    pgrep -x mako >/dev/null 2>&1 && makoctl reload >/dev/null 2>&1 || true
+    pgrep -x kitty >/dev/null 2>&1 && pkill -USR1 -x kitty || true   # kitty reloads config on SIGUSR1
+}
+
+if [[ "${1:-}" == "--colors-only" ]]; then
+    while IFS= read -r rel; do
+        if [[ ! -d "$DEST/$(dirname "$rel")" ]]; then
+            say "No $DEST/$(dirname "$rel") — run a full ./install.sh first." >&2
+            exit 1
+        fi
+        cp "$SRC/$rel" "$DEST/$rel"
+        say "Updated $rel"
+    done < <(python3 "$REPO/tools/gen.py" --list)
+    reload_running
+    say "Colors applied."
+    exit 0
+fi
 
 # ── Dependency check (informational — won't abort) ──────────────────────────
 say "Checking dependencies…"
@@ -54,4 +80,5 @@ if [[ ! -f "$QSFONT" ]]; then
     printf '   fc-cache -f     # (UI falls back to JetBrains Mono until then)\n'
 fi
 
+reload_running
 say "Done. Log into Hyprland (or run 'Hyprland' from a TTY) to see it."

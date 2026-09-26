@@ -10,7 +10,10 @@ contrast (https://www.w3.org/TR/WCAG21/#dfn-contrast-ratio):
 
 Usage:
     tools/contrast.py            check all rules; exit 1 on any failure
-    tools/contrast.py --preview  print a truecolor sample of the terminal palette
+    tools/contrast.py --preview  print truecolor samples of both terminal palettes
+
+Both modes are always checked, whichever one tokens.toml has active, so
+flipping the switch can never land on an unreadable palette.
 
 Stdlib only, so it runs anywhere the repo does.
 """
@@ -21,7 +24,7 @@ import sys
 from dataclasses import dataclass
 from typing import Mapping
 
-from tokens import Colors, load
+from tokens import MODES, Colors, load
 
 AA = 4.5
 AAA = 7.0
@@ -65,13 +68,10 @@ class Rule:
 
 ACCENTS = [1, 2, 3, 4, 5, 6, 9, 10, 11, 12, 13, 14]
 
-TERMINAL_RULES: list[Rule] = [
+_TERMINAL_COMMON: list[Rule] = [
     Rule("foreground", "background", AAA, "body text"),
-    Rule("color0", "background", AA, "black text"),
     Rule("color8", "background", AA, "dim text (comments, autosuggestions)"),
     *(Rule(f"color{n}", "background", AA, "ANSI accent as text") for n in ACCENTS),
-    # "white" is kept light (ANSI semantics), so it's checked where programs
-    # actually put it: on black. Exempt on the parchment background by design.
     Rule("color7", "color0", AA, "white on black (inverse video, TUIs)"),
     Rule("color15", "color0", AA, "bright white on black"),
     Rule("selection_foreground", "selection_background", AA, "selected text"),
@@ -79,6 +79,20 @@ TERMINAL_RULES: list[Rule] = [
     Rule("active_tab_foreground", "active_tab_background", AA, "active tab title"),
     Rule("inactive_tab_foreground", "inactive_tab_background", AA, "inactive tab title"),
 ]
+
+# ANSI semantics are kept (black dark, white light), so which of them is text
+# on the default background depends on the mode; the other is exempt there.
+TERMINAL_RULES: Mapping[str, list[Rule]] = {
+    "light": [
+        *_TERMINAL_COMMON,
+        Rule("color0", "background", AA, "black text"),
+    ],
+    "dark": [
+        *_TERMINAL_COMMON,
+        Rule("color7", "background", AA, "white text"),
+        Rule("color15", "background", AA, "bright white text"),
+    ],
+}
 
 # Applied to roles.light and roles.dark alike (bar, mako). textTertiary is
 # deliberately absent: it only marks inactive UI (empty workspaces), which
@@ -139,17 +153,29 @@ def check() -> int:
     t = load()
     tty = sys.stdout.isatty()
     results = [
-        *_report("terminal", TERMINAL_RULES, t.terminal, tty),
-        *(r for mode in ("light", "dark")
-          for r in _report(f"roles.{mode}", ROLE_RULES, t.roles[mode], tty)),
+        r
+        for mode in MODES
+        for r in (
+            *_report(f"terminal.{mode}", TERMINAL_RULES[mode], t.terminal[mode], tty),
+            *_report(f"roles.{mode}", ROLE_RULES, t.roles[mode], tty),
+        )
     ]
+    print(f"active mode: {t.mode}")
     failures = [r for r in results if not r.ok]
     print(f"{len(results) - len(failures)}/{len(results)} pass")
     return 1 if failures else 0
 
 
 def preview() -> int:
-    c = load().terminal
+    t = load()
+    for mode in MODES:
+        print(f"terminal.{mode}" + ("  (active)" if mode == t.mode else ""))
+        _preview_one(t.terminal[mode])
+        print()
+    return 0
+
+
+def _preview_one(c: Colors) -> None:
     bg = c["background"]
     names = ["black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"]
     print(_swatch(c["foreground"], bg, "  default foreground on background  ".ljust(44)))
@@ -162,7 +188,6 @@ def preview() -> int:
     print(_swatch(c["color7"], c["color0"], "  white on black (inverse video)".ljust(44)))
     print(_swatch(c["selection_foreground"], c["selection_background"], "  selection".ljust(44)))
     print(_swatch(c["cursor_text_color"], c["cursor"], "█ cursor".ljust(44)))
-    return 0
 
 
 if __name__ == "__main__":

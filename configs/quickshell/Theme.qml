@@ -6,13 +6,15 @@ import Quickshell
 // ── Warm Terminal / Cozy Archive ────────────────────────────────────────────
 // What every component reads: e.g. `Theme.bgPrimary`, never a hardcoded hex.
 // Structure (borders, sizes, fonts) is set here; colors come from tokens.toml.
-// Flip `darkMode` and the entire shell swaps between "day archive" (parchment)
-// and "night archive" (deep umber). Colors themselves live in tokens.toml.
+// `darkMode` swaps the shell between "day archive" (parchment) and "night
+// archive" (deep umber); it and all colors come from tokens.toml.
 Singleton {
     id: root
 
-    // ── The one switch ──────────────────────────────────────────────────────
-    property bool darkMode: false
+    // ── Mode ────────────────────────────────────────────────────────────────
+    // Follows `mode` in tokens.toml (the one switch for every app) — change it
+    // there and `make install`, rather than here.
+    readonly property bool darkMode: Palette.darkMode
 
     // ── Structural constants (Signalis "equipment casing" bones) ────────────
     property int  borderWidth: 2        // thick, physical. inactive elems drop to borderThin

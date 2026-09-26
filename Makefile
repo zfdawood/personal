@@ -1,4 +1,4 @@
-.PHONY: gen check preview hooks install
+.PHONY: gen check preview hooks install colors
 
 # Regenerate every app's colors from tokens.toml.
 gen:
@@ -9,7 +9,7 @@ check:
 	@python3 tools/gen.py --check
 	@python3 tools/contrast.py
 
-# Truecolor sample of the terminal palette, rendered on its own background.
+# Truecolor samples of both terminal palettes, each on its own background.
 preview:
 	@python3 tools/contrast.py --preview
 
@@ -18,5 +18,11 @@ hooks:
 	@git config core.hooksPath .githooks
 	@echo "git hooks enabled: .githooks/"
 
+# Full install: every config dir (existing ones are backed up first).
 install: gen
 	@./install.sh
+
+# Regenerate and redeploy only the generated color files, then reload running
+# apps — the quick path after changing `mode` or any color in tokens.toml.
+colors: gen
+	@./install.sh --colors-only

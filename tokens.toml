@@ -1,14 +1,18 @@
 # ── Warm Terminal / Cozy Archive — design tokens ────────────────────────────
 # The single source of truth for every color on the desktop. After editing:
-#     make          # regenerate configs/ from this file
+#     make install  # regenerate configs/, deploy, reload running apps
 #     make check    # contrast + "generated files are up to date"
 #
 # Three layers, each referring only to the one above it:
-#   [swatch]       raw paint, named for what it looks like
-#   [roles.*]      what a color is FOR in the UI, per mode (Quickshell reads
-#                  both; Hyprland and mako use roles.light)
-#   [terminal]     kitty chrome + the 16 ANSI colors (day palette)
-# Values below the swatch layer are swatch names; a literal "#RRGGBB" also works.
+#   [swatch]        raw paint, named for what it looks like
+#   [roles.*]       what a color is FOR in the UI (bar, notifications, borders)
+#   [terminal.*]    kitty chrome + the 16 ANSI colors
+# Each of roles/terminal has a light and a dark set; `mode` picks which one
+# every app uses. Values below the swatch layer are swatch names; a literal
+# "#RRGGBB" also works.
+
+# ── The one switch ──────────────────────────────────────────────────────────
+mode = "light"      # "light" (day archive) | "dark" (night archive)
 
 [swatch]
 # Neutrals, light → dark
@@ -19,6 +23,7 @@ vellum         = "#D9CBB0"
 straw          = "#C9B896"
 leather        = "#8A7654"
 leather_ink    = "#776649"   # leather darkened to pass 4.5:1 on parchment
+leather_glow   = "#A18A64"   # leather lightened to pass 4.5:1 on umber
 walnut         = "#5C4A2E"
 umber_line     = "#4A3F35"
 umber          = "#2B2420"
@@ -27,7 +32,9 @@ black          = "#000000"
 
 # Accents. The plain name is the "fill" — mid-brightness, for meters, borders,
 # and anything that isn't text. `_ink` is the same hue darkened until it reads
-# as text on parchment (≥4.5:1); `_ink_bright` is more saturated, same rule.
+# as text on parchment (~5.2:1); `_ink_bright` is more saturated at ~4.6:1.
+# `_glow` is the hue lightened to read on umber (~5.5:1); `_glow_bright` is
+# lighter still (~7.5:1) — on a dark background "bright" can just mean lighter.
 amber            = "#C97B3D"
 amber_ink        = "#8A5327"
 amber_ink_bright = "#A05419"
@@ -43,6 +50,19 @@ mauve_ink        = "#7E5656"
 mauve_ink_bright = "#935858"
 teal_ink         = "#50645F"
 teal_ink_bright  = "#526E67"
+
+amber_glow         = "#D08C57"
+amber_glow_bright  = "#E3AB7D"
+rose_glow          = "#C88E7D"
+rose_glow_bright   = "#DCAB9D"
+moss_glow          = "#93A087"
+moss_glow_bright   = "#AEBAA5"
+slate_glow         = "#919DA7"
+slate_glow_bright  = "#ADB8C0"
+mauve_glow         = "#B69393"
+mauve_glow_bright  = "#CCB0B0"
+teal_glow          = "#89A19B"
+teal_glow_bright   = "#A6BBB5"
 
 # ── Roles: "day archive" ────────────────────────────────────────────────────
 [roles.light]
@@ -79,10 +99,11 @@ onAccentSolid = "umber"
 scanline      = "black"
 
 # ── Terminal (kitty) ────────────────────────────────────────────────────────
-# ANSI semantics are kept: black is dark and white is light. Normal text uses
-# `foreground`; programs that ask for "white" draw it on black (inverse video,
-# TUIs), so white is checked against color0 rather than the parchment.
-[terminal]
+# ANSI semantics are kept in both modes: black is dark and white is light.
+# Day: normal text uses `foreground`; programs that ask for "white" draw it on
+# black (inverse video, TUIs), so white is checked against color0 rather than
+# the parchment. Night: the mirror image — white is text, black is exempt.
+[terminal.light]
 background              = "parchment"
 foreground              = "umber"
 cursor                  = "amber_ink"
@@ -111,4 +132,35 @@ color13 = "mauve_ink_bright"
 color6  = "teal_ink"          # cyan
 color14 = "teal_ink_bright"
 color7  = "vellum"            # white
+color15 = "parchment_hi"      # bright white
+
+[terminal.dark]
+background              = "umber"
+foreground              = "parchment"
+cursor                  = "amber"
+cursor_text_color       = "umber"
+selection_background    = "umber_line"
+selection_foreground    = "parchment"
+active_border_color     = "amber"
+inactive_border_color   = "umber_line"
+active_tab_background   = "amber"
+active_tab_foreground   = "umber"
+inactive_tab_background = "umber_deep"
+inactive_tab_foreground = "straw"
+
+color0  = "umber_line"        # black — a step above the background, so "black" blocks show
+color8  = "leather_glow"      # bright black — dim text
+color1  = "rose_glow"         # red
+color9  = "rose_glow_bright"
+color2  = "moss_glow"         # green
+color10 = "moss_glow_bright"
+color3  = "amber_glow"        # yellow
+color11 = "amber_glow_bright"
+color4  = "slate_glow"        # blue
+color12 = "slate_glow_bright"
+color5  = "mauve_glow"        # magenta
+color13 = "mauve_glow_bright"
+color6  = "teal_glow"         # cyan
+color14 = "teal_glow_bright"
+color7  = "straw"             # white
 color15 = "parchment_hi"      # bright white

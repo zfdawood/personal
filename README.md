@@ -13,7 +13,7 @@ the horror, minus the clinical grey-and-red.
 - **Bar-graph meters, not icons** — cpu / ram / volume as proportional fill bars.
 - **Workspaces as numbered squares** — filled on active, outlined when occupied.
 - **8×8 square status dots** instead of status glyphs.
-- **Light "day archive" by default**; flip `Theme.darkMode` for "night archive".
+- **Light "day archive" by default**; one switch in `tokens.toml` for "night archive".
 
 ## Structure
 
@@ -63,26 +63,30 @@ make           # regenerate configs/ from tokens.toml
 make check     # generated files are current + WCAG contrast of every text color
 make preview   # truecolor sample of the terminal palette on its own background
 make hooks     # once per clone: run `make check` before every commit
-make install   # make + ./install.sh
+make colors    # make + redeploy just the color files, reload running apps
+make install   # make + full ./install.sh
 ```
 
 Contrast rules live in `tools/contrast.py` as data (`fg on bg ≥ ratio, why`),
 checked against the terminal colors and both role sets. Tweak colors freely;
 the check only says whether the result is still readable.
 
-## Toggling dark mode
+## Day / night
 
-Edit `~/.config/quickshell/Theme.qml`: `property bool darkMode: true`.
-Quickshell hot-reloads — the whole shell swaps instantly. (Hyprland, kitty and
-mako use the light roles; a dark terminal palette and a single tokens-level
-mode switch are follow-ups.)
+Set `mode = "dark"` (or `"light"`) at the top of `tokens.toml`, then:
+
+```sh
+make colors    # regenerate + redeploy only the color files, reload running apps
+```
+
+Quickshell, Hyprland, kitty and mako all switch together. `make colors` touches
+only generated files, so it never backs anything up or overwrites hand edits to
+your installed configs. `make check` verifies both modes regardless of which one
+is active.
 
 ## Status
 
-First working build: top bar (workspaces, clock, cpu/ram/vol meters, status
-dot) + Hyprland/kitty/mako theming. Not yet built: app launcher styling,
-notification-center panel, on-screen-display (volume/brightness) popups, dark
-variants of the Hyprland/kitty configs.
+See [ROADMAP.md](ROADMAP.md) for what's built and what a daily driver still needs.
 
 ## License
 
