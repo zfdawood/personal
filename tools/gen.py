@@ -36,15 +36,16 @@ def hypr(t: Tokens) -> str:
         return "0xff" + hex_[1:].lower()
 
     roles = t.roles[t.mode]
+    names = ("accent", "borderStrong", "bgPrimary")
+    width = max(map(len, names))
+    body = "\n".join(f"    {n.ljust(width)} = {argb(roles[n])}," for n in names)
     return (
-        f"# {HEADER}\n# Sourced by hyprland.conf. Uses roles.{t.mode}.\n\n"
-        f"$accent       = {argb(roles['accent'])}\n"
-        f"$borderStrong = {argb(roles['borderStrong'])}\n"
-        f"$bgPrimary    = {argb(roles['bgPrimary'])}\n"
+        f"-- {HEADER}\n-- Required by hyprland.lua. Uses roles.{t.mode}.\n\n"
+        f"return {{\n{body}\n}}\n"
     )
 
 
-def palette_qml(t: Tokens) -> str:
+def tokens_qml(t: Tokens) -> str:
     def obj(colors: Mapping[str, str]) -> str:
         width = max(map(len, colors)) + 1
         rows = ",\n".join(f'        {(k + ":").ljust(width)} "{v}"' for k, v in colors.items())
@@ -74,8 +75,8 @@ def mako(t: Tokens) -> str:
 
 OUTPUTS: dict[Path, Callable[[Tokens], str]] = {
     CONFIGS / "kitty" / "colors.conf": kitty,
-    CONFIGS / "hypr" / "colors.conf": hypr,
-    CONFIGS / "quickshell" / "Palette.qml": palette_qml,
+    CONFIGS / "hypr" / "colors.lua": hypr,
+    CONFIGS / "quickshell" / "Tokens.qml": tokens_qml,
     CONFIGS / "mako" / "config": mako,
 }
 

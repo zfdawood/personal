@@ -9,7 +9,7 @@ good answer wherever one is listed.
 `[x]` done · `[~]` partial · `[ ]` not started
 
 > **Not yet verified in a live session:** the Quickshell/Hyprland changes since
-> the first build (token-driven `Palette.qml`, per-monitor workspaces, CPU
+> the first build (token-driven `Tokens.qml`, per-monitor workspaces, CPU
 > fix). Boot the VM before building on them.
 
 ## Tier 1: before daily-driving it
@@ -87,7 +87,7 @@ Rough edges that become annoying within a week.
 - [ ] Removable-media automount (`udiskie`)
 - [ ] Wallpaper image (hyprpaper is already wired, just empty)
 - [ ] Display manager / autologin (`greetd` + `tuigreet` fits a CLI setup);
-      today you start `Hyprland` from a TTY
+      today you start `start-hyprland` from a TTY
 - [ ] Keyboard-layout indicator (only matters with multiple layouts)
 - [ ] Colorblind-safe role set in `tokens.toml` (components already ask for
       `warning` / `good`, not specific hues)

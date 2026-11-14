@@ -24,12 +24,12 @@ tools/              ← gen.py (tokens → configs), contrast.py (WCAG check)
 configs/
   quickshell/
     Theme.qml       ← structure (borders, sizes, fonts), darkMode, role names
-    Palette.qml     ← GENERATED light/dark role colors
+    Tokens.qml      ← GENERATED light/dark role colors
     Audio.qml       ← default-sink volume/mute  (singleton)
     Sys.qml         ← cpu + ram from /proc       (singleton)
     shell.qml       ← entry point
     bar/            ← Bar, Workspaces, Clock, BarMeter, StatusDot
-  hypr/             ← hyprland.conf, hyprpaper.conf, colors.conf (GENERATED)
+  hypr/             ← hyprland.lua, hyprpaper.conf, colors.lua (GENERATED)
   kitty/            ← kitty.conf, colors.conf (GENERATED)
   mako/             ← config (GENERATED from templates/mako.config)
 ```
@@ -41,9 +41,10 @@ Generated files are committed, so `./install.sh` works on a fresh clone, and
 
 ## Dependencies
 
-Hyprland (>0.55), Quickshell (>0.3.0), hyprpaper, kitty, mako, wofi.
-On Arch: `sudo pacman -S hyprland kitty mako hyprpaper wofi` and Quickshell from
-the AUR (`yay -S quickshell`). Optional: nautilus (bound to `SUPER+E`).
+Hyprland (≥0.57, which reads only the Lua config), Quickshell (>0.3.0), hyprpaper,
+kitty, mako, wofi. On Arch, all from the official repos:
+`sudo pacman -S hyprland quickshell kitty mako hyprpaper wofi`.
+Optional: nautilus (bound to `SUPER+E`).
 
 ## Install
 

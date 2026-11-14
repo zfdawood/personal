@@ -48,7 +48,7 @@ command -v quickshell >/dev/null 2>&1 || command -v qs >/dev/null 2>&1 || missin
 if ((${#missing[@]})); then
     printf '   missing: %s\n' "${missing[*]}"
     printf '   Arch: sudo pacman -S hyprland kitty mako hyprpaper wofi\n'
-    printf '         quickshell -> AUR (yay -S quickshell) or quickshell-git\n'
+    printf '         quickshell -> sudo pacman -S quickshell\n'
 fi
 
 # ── Deploy each config dir, with backup ─────────────────────────────────────
@@ -81,4 +81,4 @@ if [[ ! -f "$QSFONT" ]]; then
 fi
 
 reload_running
-say "Done. Log into Hyprland (or run 'Hyprland' from a TTY) to see it."
+say "Done. Log into Hyprland (or run 'start-hyprland' from a TTY) to see it."

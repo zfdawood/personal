@@ -14,7 +14,7 @@ Singleton {
     // ── Mode ────────────────────────────────────────────────────────────────
     // Follows `mode` in tokens.toml (the one switch for every app) — change it
     // there and `make install`, rather than here.
-    readonly property bool darkMode: Palette.darkMode
+    readonly property bool darkMode: Tokens.darkMode
 
     // ── Structural constants (Signalis "equipment casing" bones) ────────────
     property int  borderWidth: 2        // thick, physical. inactive elems drop to borderThin
@@ -45,9 +45,9 @@ Singleton {
     }
 
     // ── Palette ─────────────────────────────────────────────────────────────
-    // Both mode sets are generated from tokens.toml into Palette.qml; edit the
+    // Both mode sets are generated from tokens.toml into Tokens.qml; edit the
     // tokens (then `make`), not hex codes here.
-    readonly property var  set:            darkMode ? Palette.dark : Palette.light
+    readonly property var  set:            darkMode ? Tokens.dark : Tokens.light
     readonly property color bgPrimary:     set.bgPrimary
     readonly property color bgAlt:         set.bgAlt
     readonly property color border:        set.border
