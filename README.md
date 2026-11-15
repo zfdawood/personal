@@ -11,6 +11,10 @@ the horror, minus the clinical grey-and-red.
   darker desk, each with a hard offset shadow (no blur). The step between desk
   and paper is measured, not eyeballed: `make check` holds it to a minimum
   OKLab lightness difference in both modes.
+- **Lit from the top left.** The shadows fall down-right, so every edge
+  follows the same light: borders run from a lit color (top/left) to a shaded
+  one (bottom/right), cards have a 1px highlight lip, and the meters are slots
+  cut into the bar. Both ends of the focused border pass the 3:1 check.
 - **One spacing unit (4px).** Every gap on screen is 8px, whether between
   windows, from window to bar, or from screen edge to paper, and every size
   in the bar is a whole number of units.

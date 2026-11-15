@@ -4,7 +4,7 @@ import Quickshell.Wayland
 import ".."
 
 // One bar per screen: a parchment card lying on the desk, like the windows
-// below it — same 2px border, same hard shadow, same 8px gap to everything.
+// below it — same lit/shaded 2px border, same hard shadow, same 8px gap.
 // Left: workspaces. Center: date and time. Right: cpu / ram / vol meters.
 Scope {
     Variants {
@@ -45,21 +45,17 @@ Scope {
             }
 
             // ── the card ──
-            Rectangle {
+            Card {
                 id: card
                 x: Theme.gap
                 y: Theme.gap
                 width: parent.width - 2 * Theme.gap
                 height: Theme.barHeight
-                radius: Theme.radius
-                color: Theme.bgPrimary
-                border.width: Theme.borderWidth
-                border.color: Theme.border
 
                 Item {
                     anchors.fill: parent
-                    anchors.leftMargin: Theme.padX
-                    anchors.rightMargin: Theme.padX
+                    anchors.leftMargin: Theme.padX - Theme.borderWidth   // Card already insets the border
+                    anchors.rightMargin: Theme.padX - Theme.borderWidth
 
                     Workspaces {
                         anchors.left: parent.left
@@ -99,7 +95,6 @@ Scope {
                 // ── optional CRT scanline overlay (off by default) ──
                 Rectangle {
                     anchors.fill: parent
-                    anchors.margins: Theme.borderWidth
                     visible: Theme.scanlines
                     opacity: Theme.scanlineOpacity
                     gradient: Gradient {

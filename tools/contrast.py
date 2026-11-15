@@ -122,7 +122,8 @@ ROLE_RULES: list[Rule] = [
     Rule("textPrimary", "bgPrimary", AAA, "clock, workspace numbers, notifications"),
     Rule("textSecondary", "bgPrimary", AA, "meter labels, low-urgency notifications"),
     Rule("onAccentSolid", "accentSolid", AA, "active workspace number"),
-    Rule("focusBorder", "bgPrimary", NON_TEXT, "focused window edge (non-text)"),
+    Rule("focusBorder", "bgPrimary", NON_TEXT, "focused window edge, lit side"),
+    Rule("focusBorderShade", "bgPrimary", NON_TEXT, "focused window edge, shaded side"),
 ]
 
 

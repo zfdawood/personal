@@ -32,16 +32,15 @@ def kitty(t: Tokens) -> str:
 
 
 def hypr(t: Tokens) -> str:
-    def argb(hex_: str) -> str:
-        return "0xff" + hex_[1:].lower()
-
     roles = t.roles[t.mode]
-    names = ("focusBorder", "border", "desk", "shadow")
+    names = ("focusBorder", "focusBorderShade", "border", "borderShade", "desk", "shadow")
     width = max(map(len, names))
-    body = "\n".join(f"    {n.ljust(width)} = {argb(roles[n])}," for n in names)
+    # Plain colors take 0xAARRGGBB numbers; gradient stops must be strings.
+    nums = "\n".join(f"    {n.ljust(width)} = 0xff{roles[n][1:].lower()}," for n in names)
+    strs = "\n".join(f'        {n.ljust(width)} = "rgba({roles[n][1:].lower()}ff)",' for n in names)
     return (
         f"-- {HEADER}\n-- Required by hyprland.lua. Uses roles.{t.mode}.\n\n"
-        f"return {{\n{body}\n}}\n"
+        f"return {{\n{nums}\n    rgb = {{\n{strs}\n    }},\n}}\n"
     )
 
 

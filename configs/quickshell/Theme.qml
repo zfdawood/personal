@@ -79,5 +79,9 @@ Singleton {
     readonly property color scanline:      set.scanline
     readonly property color desk:          set.desk          // what the papers lie on
     readonly property color shadow:        set.shadow        // hard card shadow
-    readonly property color focusBorder:   set.focusBorder
+    // Light from the top left: lit edges top/left, shaded edges bottom/right.
+    readonly property color focusBorder:      set.focusBorder
+    readonly property color focusBorderShade: set.focusBorderShade
+    readonly property color borderShade:      set.borderShade
+    readonly property color highlight:        set.highlight   // 1px lit lip inside a card
 }

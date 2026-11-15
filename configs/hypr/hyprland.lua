@@ -3,7 +3,7 @@
 -- hard offset shadow. Every gap on screen is the same 8px (2 × the 4px unit);
 -- the bar (Quickshell) follows the same rules.
 
--- Palette: focusBorder, border, desk, shadow — generated from tokens.toml.
+-- Palette (lit/shaded edges, desk, shadow) — generated from tokens.toml.
 local c = require("./colors.lua")
 
 -- ── Keyboard: the one switch ─────────────────────────────────────────────────
@@ -46,9 +46,12 @@ hl.config({
         gaps_in          = 4,      -- per side, so 8 between two windows
         gaps_out         = 8,      -- screen edge and bar → window
         border_size      = 2,
+        -- Light from the top left (the shadows fall down-right): each border
+        -- runs from its lit color at the top-left corner to its shaded color
+        -- at the bottom-right (45° = that diagonal in Hyprland's gradients).
         col = {
-            active_border   = c.focusBorder,   -- the one loud edge
-            inactive_border = c.border,        -- quiet; the shadow does the lifting
+            active_border   = { colors = { c.rgb.focusBorder, c.rgb.focusBorderShade }, angle = 45 },
+            inactive_border = { colors = { c.rgb.border,      c.rgb.borderShade      }, angle = 45 },
         },
         layout           = "dwindle",
         resize_on_border = true,

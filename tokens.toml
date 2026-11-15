@@ -36,6 +36,11 @@ oak            = "#B39C78"   # day desk        (paper − desk ΔL ≈ 0.23)
 oak_shade      = "#7A6646"   # day card shadow (desk − shadow ΔL ≈ 0.18)
 ebony          = "#120E0B"   # night desk      (paper − desk ΔL ≈ 0.10)
 
+# Light comes from the top left (the shadows fall down-right), so edges have a
+# lit side (top/left) and a shaded side (bottom/right).
+straw_shade    = "#B9A684"   # straw on its shaded side
+umber_mid      = "#3A3129"   # just above umber: night's lit lip and shaded edge
+
 # Accents. The plain name is the "fill" — mid-brightness, for meters, borders,
 # and anything that isn't text. `_ink` is the same hue darkened until it reads
 # as text on parchment (~5.2:1); `_ink_bright` is more saturated at ~4.6:1.
@@ -89,7 +94,10 @@ onAccentSolid = "parchment"        # …and the text on it
 scanline      = "black"
 desk          = "oak"              # desktop background: papers lie on it
 shadow        = "oak_shade"        # hard offset shadow under windows and the bar
-focusBorder   = "amber_edge"       # focused window's edge (a state indicator)
+focusBorder      = "amber_edge"    # focused window's edge, lit side (a state indicator)
+focusBorderShade = "amber_ink"     # …its shaded side; both ends pass 3:1
+borderShade      = "straw_shade"   # unfocused edges, shaded side (`border` is the lit side)
+highlight        = "parchment_hi"  # 1px lit lip inside a card's top/left edge
 
 # ── Roles: "night archive" ──────────────────────────────────────────────────
 [roles.dark]
@@ -109,7 +117,10 @@ onAccentSolid = "umber"
 scanline      = "black"
 desk          = "ebony"
 shadow        = "black"
-focusBorder   = "amber"            # already 4.6:1 on umber
+focusBorder      = "amber_glow"    # lit side: lighter on a dark card
+focusBorderShade = "amber"
+borderShade      = "umber_mid"
+highlight        = "umber_mid"
 
 # ── Terminal (kitty) ────────────────────────────────────────────────────────
 # ANSI semantics are kept in both modes: black is dark and white is light.
