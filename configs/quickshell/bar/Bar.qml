@@ -4,7 +4,8 @@ import Quickshell.Wayland
 import ".."
 
 // One bar per screen: a parchment card lying on the desk, like the windows
-// below it — same lit/shaded 2px border, same hard shadow, same 8px gap.
+// below it — same cut corners, same bevel lit from the top left, same hard
+// shadow, same 8px gap. Click the clock for settings.
 // Left: workspaces. Center: date and time. Right: cpu / ram / vol meters.
 Scope {
     Variants {
@@ -35,16 +36,7 @@ Scope {
             exclusionMode: ExclusionMode.Normal
             exclusiveZone: Theme.gap + Theme.barHeight
 
-            // ── hard shadow: the card's shape, one unit down-right ──
-            Rectangle {
-                x: card.x + Theme.shadowOffset
-                y: card.y + Theme.shadowOffset
-                width: card.width
-                height: card.height
-                color: Theme.shadow
-            }
-
-            // ── the card ──
+            // ── the card (draws its own hard shadow) ──
             Card {
                 id: card
                 x: Theme.gap
@@ -65,6 +57,11 @@ Scope {
 
                     Clock {
                         anchors.centerIn: parent
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: Menus.toggleSettings()   // same as SUPER+comma
+                        }
                     }
 
                     Row {

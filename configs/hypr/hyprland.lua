@@ -1,19 +1,29 @@
 -- ── Warm Terminal / Cozy Archive — Hyprland (Lua config, Hyprland ≥ 0.57) ────
--- Paper on a desk: windows are parchment cards on a darker desk, each with a
--- hard offset shadow. Every gap on screen is the same 8px (2 × the 4px unit);
--- the bar (Quickshell) follows the same rules.
+-- Paper on a desk: windows are parchment cards on a wooden desk (Quickshell
+-- draws the wallpaper), each with cut corners, a bevelled edge lit from the
+-- top left, and a hard shadow falling down-right. Every gap on screen is the
+-- same 8px (2 × the 4px unit); the bar and menus follow the same rules.
 
--- Palette (lit/shaded edges, desk, shadow) — generated from tokens.toml.
-local c = require("./colors.lua")
+-- ── Settings ────────────────────────────────────────────────────────────────
+-- Written by apply.py from ~/.config/cozy-archive/settings.json; change them
+-- from the settings menu (SUPER+comma). Defaults if it hasn't run yet.
+-- dofile, not require: require caches, and these change while Hyprland runs.
+local confdir = os.getenv("XDG_CONFIG_HOME") or (os.getenv("HOME") .. "/.config")
+local ok, settings = pcall(dofile, confdir .. "/hypr/settings.lua")
+if not ok or type(settings) ~= "table" then settings = {} end
+local mode = settings.mode == "dark" and "dark" or "light"
 
--- ── Keyboard: the one switch ─────────────────────────────────────────────────
+-- Palette (both modes) — generated from tokens.toml.
+local c = require("./colors.lua")[mode]
+
+-- ── Keyboard ────────────────────────────────────────────────────────────────
 -- Sets the typing layout and the focus keys, which sit where vim's h/j/k/l
 -- physically are (qwerty H J K L, dvorak D H T N):
 --   "qwerty"         a plain keyboard, typing QWERTY
 --   "dvorak"         a plain keyboard; Hyprland remaps it to Dvorak
 --   "dvorak-native"  the keyboard itself sends Dvorak (QMK/ZMK firmware), so
 --                    Hyprland must NOT remap it again; Dvorak focus keys only
-local keyboard = "dvorak-native"
+local keyboard = settings.keyboard or "dvorak-native"
 
 local layouts = {
     ["qwerty"]        = { variant = "",       left = "H", down = "J", up = "K", right = "L" },
@@ -34,11 +44,22 @@ hl.monitor({
 })
 
 -- ── Autostart ───────────────────────────────────────────────────────────────
+-- apply.py --startup links the right day/night files and makes sure the
+-- wallpaper for this screen size exists; Quickshell draws it, plus the bar,
+-- the launcher and the settings menu.
+local share = (os.getenv("XDG_DATA_HOME") or (os.getenv("HOME") .. "/.local/share")) .. "/cozy-archive"
 hl.on("hyprland.start", function()
-    hl.exec_cmd("hyprpaper")
-    hl.exec_cmd("quickshell")
+    hl.exec_cmd("python3 " .. share .. "/apply.py --startup; quickshell")
     hl.exec_cmd("mako")
 end)
+
+-- A border that's flat-shaded, not smoothly blended: five stops of the lit
+-- color then five of the shaded one (10 is Hyprland's maximum), so the 45°
+-- gradient is solid on each side and only blends in a thin band across the
+-- diagonal — a bevel with two faces, like low-poly geometry.
+local function faceted(lit, shade)
+    return { colors = { lit, lit, lit, lit, lit, shade, shade, shade, shade, shade }, angle = 45 }
+end
 
 -- ── Look & feel ─────────────────────────────────────────────────────────────
 hl.config({
@@ -46,19 +67,22 @@ hl.config({
         gaps_in          = 4,      -- per side, so 8 between two windows
         gaps_out         = 8,      -- screen edge and bar → window
         border_size      = 2,
-        -- Light from the top left (the shadows fall down-right): each border
-        -- runs from its lit color at the top-left corner to its shaded color
-        -- at the bottom-right (45° = that diagonal in Hyprland's gradients).
+        -- Light from the top left (the shadows fall down-right): the top and
+        -- left faces of each border are lit, the bottom and right in shade.
         col = {
-            active_border   = { colors = { c.rgb.focusBorder, c.rgb.focusBorderShade }, angle = 45 },
-            inactive_border = { colors = { c.rgb.border,      c.rgb.borderShade      }, angle = 45 },
+            active_border   = faceted(c.rgb.focusBorder, c.rgb.focusBorderShade),
+            inactive_border = faceted(c.rgb.highlight,   c.rgb.shadow),
         },
         layout           = "dwindle",
         resize_on_border = true,
     },
 
     decoration = {
-        rounding = 0,           -- square corners everywhere
+        -- Cut corners: rounding_power = 1 makes the corner "curve" a straight
+        -- 45° line, so an 8px rounding is an 8px chamfer — the low-poly corner.
+        -- The border and the shadow follow the same shape.
+        rounding       = 8,
+        rounding_power = 1,
         -- No blur: paper, not glass. The shadow is sharp and offset, like a
         -- card resting on a desk, not a glow.
         blur   = { enabled = false },
@@ -82,7 +106,7 @@ hl.config({
     misc = {
         disable_hyprland_logo    = true,
         disable_splash_rendering = true,
-        background_color         = c.desk,
+        background_color         = c.desk,   -- under the wallpaper, if it's missing
     },
 
     input = {
@@ -112,7 +136,8 @@ hl.bind(key("M"),      hl.dsp.exit())
 hl.bind(key("E"),      hl.dsp.exec_cmd("nautilus"))
 hl.bind(key("V"),      hl.dsp.window.float({ action = "toggle" }))
 hl.bind(key("F"),      hl.dsp.window.fullscreen())
-hl.bind(key("Space"),  hl.dsp.exec_cmd("wofi --show drun"))
+hl.bind(key("Space"),  hl.dsp.exec_cmd("quickshell ipc call launcher toggle"))
+hl.bind(key("comma"),  hl.dsp.exec_cmd("quickshell ipc call settings toggle"))
 
 -- Focus (vim positions for the chosen keyboard, + arrows)
 for _, pair in ipairs({

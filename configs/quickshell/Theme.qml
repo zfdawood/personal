@@ -12,9 +12,9 @@ Singleton {
     id: root
 
     // ── Mode ────────────────────────────────────────────────────────────────
-    // Follows `mode` in tokens.toml (the one switch for every app) — change it
-    // there and `make install`, rather than here.
-    readonly property bool darkMode: Tokens.darkMode
+    // Follows the settings menu (SUPER+comma), which writes settings.json;
+    // tokens.toml's `mode` is only the default for a fresh install.
+    readonly property bool darkMode: Settings.mode === "dark"
 
     // ── Spacing: one 4px unit ───────────────────────────────────────────────
     // Every size below is a whole number of units, and the gaps match
@@ -27,6 +27,7 @@ Singleton {
     readonly property int padX:         3 * unit   // inside the bar card, left/right
     readonly property int groupGap:     6 * unit   // between meters
     readonly property int labelGap:     2 * unit   // label → its meter
+    readonly property int chamfer:      2 * unit   // cut corners (= Hyprland's rounding 8, power 1)
 
     // Borders: the same 2px as Hyprland's windows; 1px only for recesses.
     readonly property int borderWidth: 2
@@ -48,7 +49,7 @@ Singleton {
     readonly property int fontSize: 11
 
     // ── Clock ───────────────────────────────────────────────────────────────
-    property bool clock24h: false      // false: "5:10 pm"; true: "17:10"
+    readonly property bool clock24h: Settings.clock24h   // false: "5:10 pm"; true: "17:10"
 
     FontLoader {
         id: monoFont

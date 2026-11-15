@@ -7,11 +7,12 @@
 #   [swatch]        raw paint, named for what it looks like
 #   [roles.*]       what a color is FOR in the UI (bar, notifications, borders)
 #   [terminal.*]    kitty chrome + the 16 ANSI colors
-# Each of roles/terminal has a light and a dark set; `mode` picks which one
-# every app uses. Values below the swatch layer are swatch names; a literal
-# "#RRGGBB" also works.
+# Each of roles/terminal has a light and a dark set; every app ships both, and
+# the settings menu (SUPER+comma) switches between them at runtime. `mode` is
+# only the default for a fresh install. Values below the swatch layer are
+# swatch names; a literal "#RRGGBB" also works.
 
-# ── The one switch ──────────────────────────────────────────────────────────
+# ── Default mode ────────────────────────────────────────────────────────────
 mode = "light"      # "light" (day archive) | "dark" (night archive)
 
 [swatch]
@@ -188,3 +189,23 @@ color6  = "teal_glow"         # cyan
 color14 = "teal_glow_bright"
 color7  = "straw"             # white
 color15 = "parchment_hi"      # bright white
+
+# ── Wallpaper (tools/wallpaper.py) ──────────────────────────────────────────
+# Each material is a ramp of swatches, darkest → lightest. The generator shades
+# in continuous values, then dithers each pixel to its OWN material's ramp only
+# (so dark wood never picks up stray greens). Light comes from the top left.
+[wallpaper.light]
+wood  = ["walnut", "oak_shade", "leather", "oak", "straw"]
+seam  = ["walnut"]                          # board gaps
+stem  = ["moss_ink", "moss_ink_bright", "moss"]
+leaf  = ["moss_ink", "moss", "moss_glow", "moss_glow_bright"]
+berry = ["rose_ink", "rose", "amber"]
+nail  = ["walnut", "leather", "straw"]
+
+[wallpaper.dark]
+wood  = ["black", "ebony", "umber_deep", "umber", "umber_line"]
+seam  = ["black"]
+stem  = ["teal_ink", "moss_ink", "moss_ink_bright"]
+leaf  = ["umber_line", "teal_ink", "moss_ink", "moss"]
+berry = ["rose_ink", "mauve_ink", "amber_ink"]
+nail  = ["black", "umber_line", "leather"]

@@ -52,7 +52,7 @@ Things whose absence you'd notice on day one.
       Adwaita. Set GTK theme + `qt6ct`, generated from tokens where possible
 - [ ] **Cursor theme**: consistent cursor across apps (`hyprcursor` /
       `XCURSOR_THEME`)
-- [~] **Launcher**: wofi works but is unstyled; generate its CSS from tokens
+- [x] **Launcher**: Quickshell, on the same low-poly cards (SUPER+Space)
 
 ## Tier 2: soon after
 
@@ -85,7 +85,7 @@ Rough edges that become annoying within a week.
 - [ ] Screen recording (`wf-recorder`)
 - [ ] Color picker (`hyprpicker`), handy for palette work
 - [ ] Removable-media automount (`udiskie`)
-- [ ] Wallpaper image (hyprpaper is already wired, just empty)
+- [x] Wallpaper: generated (`tools/wallpaper.py`), reroll from settings
 - [ ] Display manager / autologin (`greetd` + `tuigreet` fits a CLI setup);
       today you start `start-hyprland` from a TTY
 - [ ] Keyboard-layout indicator (only matters with multiple layouts)

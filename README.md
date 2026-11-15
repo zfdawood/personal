@@ -21,43 +21,66 @@ the horror, minus the clinical grey-and-red.
 - **One loud edge.** The focused window's border is amber, at a contrast of
   at least 3:1 against the paper it outlines (WCAG 1.4.11). Everything else
   is quiet.
-- **Square corners everywhere** and 2px borders, the same on windows and the bar.
+- **Low-poly edges.** Corners are cut at 45° (Hyprland's rounding with
+  `rounding_power = 1`), and every edge is a flat-shaded bevel: each face is
+  shaded by how directly it faces the top-left light, so the top-left
+  diagonal is brightest and the bottom-right darkest. Windows, the bar and
+  the menus all follow the same rule.
+- **A wooden desk, drawn by code.** `tools/wallpaper.py` paints low-poly
+  planks and seeded vines at a quarter of screen resolution, dithers each
+  material to its own palette ramp, and the desktop shows it at exactly 4×,
+  so one wallpaper pixel is one 4px unit. Same seed, same picture.
 - **Departure Mono at 11px.** It's a pixel font drawn on an 11px grid, so the
   bar uses that one size and builds hierarchy from color instead.
 - **Bar-graph meters, not icons**: cpu / ram / volume as proportional fills.
 - **Workspaces as numerals**, with a solid bar under the active one; empty
   workspaces are faded.
-- **Light "day archive" by default**; one switch in `tokens.toml` for "night archive".
+- **Settings menu** (SUPER+comma, or click the clock): day/night, keyboard
+  layout, 12/24-hour clock, and "grow new vines". Changes apply at once.
+- **App launcher** (SUPER+Space): type to filter, arrows to choose, Enter to open.
 
 ## Structure
 
 ```
 tokens.toml         ← every color: swatches → roles (light/dark) → terminal
 templates/          ← mako.config (mako has no include, so it's templated whole)
-tools/              ← gen.py (tokens → configs), contrast.py (WCAG check)
+tools/              ← gen.py (tokens → configs), contrast.py (contrast + surface checks)
+                       apply.py (settings → running desktop), wallpaper.py
 configs/
   quickshell/
-    Theme.qml       ← structure (borders, sizes, fonts), darkMode, role names
+    Theme.qml       ← structure (spacing unit, borders, fonts), role names
     Tokens.qml      ← GENERATED light/dark role colors
+    Settings.qml    ← settings.json, live; runs apply.py on change
+    Card.qml        ← the low-poly card everything is drawn on
+    Background.qml  ← the wallpaper layer
     Audio.qml       ← default-sink volume/mute  (singleton)
     Sys.qml         ← cpu + ram from /proc       (singleton)
     shell.qml       ← entry point
     bar/            ← Bar, Workspaces, Clock, BarMeter
-  hypr/             ← hyprland.lua, hyprpaper.conf, colors.lua (GENERATED)
-  kitty/            ← kitty.conf, colors.conf (GENERATED)
-  mako/             ← config (GENERATED from templates/mako.config)
+    menus/          ← Launcher, SettingsPanel
+  hypr/             ← hyprland.lua, colors.lua (GENERATED, both modes)
+  kitty/            ← kitty.conf, colors-{light,dark}.conf (GENERATED)
+  mako/             ← config-{light,dark} (GENERATED from templates/mako.config)
+  cozy-archive/     ← settings.json defaults (GENERATED; installed once)
 ```
 
-**To change a color, edit `tokens.toml`, then `make`.** Quickshell, Hyprland,
+Every app ships both its day and night colors. At runtime, `apply.py` reads
+`~/.config/cozy-archive/settings.json` and switches links
+(`kitty/colors.conf`, `mako/config`), writes `hypr/settings.lua`, draws the
+wallpaper if it isn't cached, and reloads what's running. The settings menu
+runs it on every change; Hyprland runs it at login.
+
+**To change a color, edit `tokens.toml`, then `make` (and `make colors` to
+deploy).** Quickshell, Hyprland,
 kitty and mako all derive from it; no hex codes are hardcoded anywhere else.
 Generated files are committed, so `./install.sh` works on a fresh clone, and
 `make check` fails if they've drifted from the tokens.
 
 ## Dependencies
 
-Hyprland (≥0.57, which reads only the Lua config), Quickshell (>0.3.0), hyprpaper,
-kitty, mako, wofi. On Arch, all from the official repos:
-`sudo pacman -S hyprland quickshell kitty mako hyprpaper wofi`.
+Hyprland (≥0.57, which reads only the Lua config), Quickshell (>0.3.0),
+kitty, mako, Python 3.11+ (stdlib only: wallpaper and settings). On Arch, all
+from the official repos: `sudo pacman -S hyprland quickshell kitty mako python`.
 Optional: nautilus (bound to `SUPER+E`).
 
 ## Install

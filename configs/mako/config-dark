@@ -1,5 +1,6 @@
 # GENERATED from tokens.toml by tools/gen.py — edit tokens.toml, then run `make`.
-# Template: templates/mako.config. Uses roles.light.
+# Template: templates/mako.config. Uses roles.dark.
+# ~/.config/mako/config is a link to this file or its other-mode twin.
 
 # ── Warm Terminal / Cozy Archive — mako notifications ───────────────────────
 # Square, thick-bordered "instrument readout" toasts, on the same 8px grid as
@@ -8,10 +9,10 @@
 # placeholders are filled from tokens.toml [roles.<mode>].
 
 font=Departure Mono 10
-background-color=#F3E9D8
-text-color=#2B2420
+background-color=#2B2420
+text-color=#F3E9D8
 border-color=#C97B3D
-progress-color=over #E3D5B8
+progress-color=over #1C1713
 
 border-size=2
 border-radius=0
@@ -27,7 +28,7 @@ outer-margin=8,8
 
 [urgency=low]
 border-color=#7C8B6F
-text-color=#5C4A2E
+text-color=#C9B896
 
 [urgency=normal]
 border-color=#C97B3D

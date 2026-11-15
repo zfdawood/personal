@@ -23,6 +23,7 @@ install: gen
 	@./install.sh
 
 # Regenerate and redeploy only the generated color files, then reload running
-# apps — the quick path after changing `mode` or any color in tokens.toml.
+# apps (and repaint the wallpaper) — the quick path after editing a color in
+# tokens.toml. Day/night itself is switched from the settings menu, SUPER+comma.
 colors: gen
 	@./install.sh --colors-only

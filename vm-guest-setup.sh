@@ -3,7 +3,7 @@
 #   ./vm-guest-setup.sh http://10.0.2.2:8099/cozy-archive.tar.gz
 # (10.0.2.2 is the host under QEMU user-mode networking, i.e. a libvirt
 #  session VM; on the system libvirt NAT network it's 192.168.122.1.)
-# Installs Hyprland + Quickshell (+ deps), fetches the theme from the host,
+# Installs Hyprland + Quickshell + Python (+ deps), fetches the theme from the host,
 # deploys it, and drops a Hyprland session you can start with `start-hyprland`.
 set -euo pipefail
 
@@ -16,7 +16,7 @@ trap 'rm -rf "$tmp"' EXIT
 # ── 1. Packages (Quickshell is in [extra] now; no AUR build needed) ───────
 c "Updating + installing packages (needs sudo)…"
 sudo pacman -Syu --needed --noconfirm \
-    hyprland quickshell kitty mako hyprpaper wofi \
+    hyprland quickshell kitty mako python \
     git jq socat \
     qt6-base qt6-declarative qt6-svg qt6-wayland \
     ttf-jetbrains-mono noto-fonts wireplumber
@@ -57,7 +57,7 @@ cat <<'EOF'
   ┌─ next ────────────────────────────────────────────────┐
   │  Start the desktop from this TTY:                      │
   │      start-hyprland                                    │
-  │  Then: SUPER+Return = kitty · SUPER+Space = launcher   │
-  │        SUPER+1..5 = workspaces · SUPER+Q = close       │
+  │  SUPER+Return = kitty      SUPER+Space = launcher      │
+  │  SUPER+comma = settings    SUPER+Q = close window      │
   └────────────────────────────────────────────────────────┘
 EOF

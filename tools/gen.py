@@ -13,10 +13,12 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+import json
+from functools import partial
 from string import Template
 from typing import Callable, Mapping
 
-from tokens import REPO, Tokens, load
+from tokens import MODES, REPO, Tokens, load
 
 CONFIGS = REPO / "configs"
 TEMPLATES = REPO / "templates"
@@ -24,23 +26,31 @@ TEMPLATES = REPO / "templates"
 HEADER = "GENERATED from tokens.toml by tools/gen.py — edit tokens.toml, then run `make`."
 
 
-def kitty(t: Tokens) -> str:
-    colors = t.terminal[t.mode]
+def kitty(t: Tokens, mode: str) -> str:
+    colors = t.terminal[mode]
     width = max(map(len, colors))
     body = "\n".join(f"{k.ljust(width)}  {v}" for k, v in colors.items())
-    return f"# {HEADER}\n# Included by kitty.conf. Uses terminal.{t.mode}.\n\n{body}\n"
+    return (
+        f"# {HEADER}\n# Uses terminal.{mode}. kitty.conf includes colors.conf, which the\n"
+        f"# settings menu (apply.py) links to this file or its other-mode twin.\n\n{body}\n"
+    )
 
 
 def hypr(t: Tokens) -> str:
-    roles = t.roles[t.mode]
-    names = ("focusBorder", "focusBorderShade", "border", "borderShade", "desk", "shadow")
+    names = ("focusBorder", "focusBorderShade", "border", "borderShade", "highlight", "desk", "shadow")
     width = max(map(len, names))
-    # Plain colors take 0xAARRGGBB numbers; gradient stops must be strings.
-    nums = "\n".join(f"    {n.ljust(width)} = 0xff{roles[n][1:].lower()}," for n in names)
-    strs = "\n".join(f'        {n.ljust(width)} = "rgba({roles[n][1:].lower()}ff)",' for n in names)
+
+    def table(mode: str) -> str:
+        roles = t.roles[mode]
+        # Plain colors take 0xAARRGGBB numbers; gradient stops must be strings.
+        nums = "\n".join(f"        {n.ljust(width)} = 0xff{roles[n][1:].lower()}," for n in names)
+        strs = "\n".join(f'            {n.ljust(width)} = "rgba({roles[n][1:].lower()}ff)",' for n in names)
+        return f"    {mode} = {{\n{nums}\n        rgb = {{\n{strs}\n        }},\n    }},"
+
+    body = "\n".join(table(m) for m in MODES)
     return (
-        f"-- {HEADER}\n-- Required by hyprland.lua. Uses roles.{t.mode}.\n\n"
-        f"return {{\n{nums}\n    rgb = {{\n{strs}\n    }},\n}}\n"
+        f"-- {HEADER}\n-- Required by hyprland.lua, which picks a mode from settings.lua.\n\n"
+        f"return {{\n{body}\n}}\n"
     )
 
 
@@ -65,18 +75,29 @@ def tokens_qml(t: Tokens) -> str:
     )
 
 
-def mako(t: Tokens) -> str:
+def mako(t: Tokens, mode: str) -> str:
     template = Template((TEMPLATES / "mako.config").read_text())
-    return f"# {HEADER}\n# Template: templates/mako.config. Uses roles.{t.mode}.\n\n" + template.substitute(
-        t.roles[t.mode]
+    return (
+        f"# {HEADER}\n# Template: templates/mako.config. Uses roles.{mode}.\n"
+        f"# ~/.config/mako/config is a link to this file or its other-mode twin.\n\n"
+        + template.substitute(t.roles[mode])
     )
 
 
+def settings(t: Tokens) -> str:
+    """Defaults for a fresh install; install.sh never overwrites an existing one."""
+    return json.dumps(
+        {"mode": t.mode, "keyboard": "dvorak-native", "clock24h": False, "wallpaperSeed": 1},
+        indent=2,
+    ) + "\n"
+
+
 OUTPUTS: dict[Path, Callable[[Tokens], str]] = {
-    CONFIGS / "kitty" / "colors.conf": kitty,
+    **{CONFIGS / "kitty" / f"colors-{m}.conf": partial(kitty, mode=m) for m in MODES},
+    **{CONFIGS / "mako" / f"config-{m}": partial(mako, mode=m) for m in MODES},
     CONFIGS / "hypr" / "colors.lua": hypr,
     CONFIGS / "quickshell" / "Tokens.qml": tokens_qml,
-    CONFIGS / "mako" / "config": mako,
+    CONFIGS / "cozy-archive" / "settings.json": settings,
 }
 
 
@@ -98,6 +119,7 @@ def main(argv: list[str]) -> int:
         return 1 if stale else 0
 
     for p in stale:
+        p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text(rendered[p])
         print(f"wrote {p.relative_to(REPO)}")
     return 0

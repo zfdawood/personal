@@ -29,6 +29,7 @@ class Tokens:
     swatch: Colors
     roles: Mapping[str, Colors]       # mode → role → hex
     terminal: Mapping[str, Colors]    # mode → kitty key → hex
+    wallpaper: Mapping[str, Mapping[str, list[str]]]  # mode → material → ramp (hex, dark → light)
 
 
 class TokenError(ValueError):
@@ -66,6 +67,24 @@ def _per_mode(raw: Mapping[str, Any], swatch: Colors, section: str) -> dict[str,
     return out
 
 
+def _ramps(raw: Mapping[str, Any], swatch: Colors) -> dict[str, dict[str, list[str]]]:
+    """[wallpaper.light] / [wallpaper.dark]: material → list of swatch names."""
+    table = raw.get("wallpaper", {})
+    if set(table) != set(MODES):
+        raise TokenError(f"wallpaper: expected exactly {' and '.join(MODES)}, got {sorted(table)}")
+    out: dict[str, dict[str, list[str]]] = {}
+    for mode in MODES:
+        out[mode] = {}
+        for material, names in table[mode].items():
+            loc = f"wallpaper.{mode}.{material}"
+            if not isinstance(names, list) or not names:
+                raise TokenError(f"{loc}: expected a non-empty list of swatch names")
+            out[mode][material] = list(_resolve(dict(enumerate(names)), swatch, loc).values())
+    if out["light"].keys() != out["dark"].keys():
+        raise TokenError("wallpaper: light and dark must define the same materials")
+    return out
+
+
 def parse(text: str) -> Tokens:
     raw = tomllib.loads(text)
     mode = raw.get("mode")
@@ -77,6 +96,7 @@ def parse(text: str) -> Tokens:
         swatch=swatch,
         roles=_per_mode(raw, swatch, "roles"),
         terminal=_per_mode(raw, swatch, "terminal"),
+        wallpaper=_ramps(raw, swatch),
     )
 
 
