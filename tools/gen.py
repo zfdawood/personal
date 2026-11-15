@@ -36,7 +36,7 @@ def hypr(t: Tokens) -> str:
         return "0xff" + hex_[1:].lower()
 
     roles = t.roles[t.mode]
-    names = ("accent", "borderStrong", "bgPrimary")
+    names = ("focusBorder", "border", "desk", "shadow")
     width = max(map(len, names))
     body = "\n".join(f"    {n.ljust(width)} = {argb(roles[n])}," for n in names)
     return (

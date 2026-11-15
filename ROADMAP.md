@@ -95,7 +95,7 @@ Rough edges that become annoying within a week.
 ## Done
 
 - [x] Hyprland: square, 2px amber borders, no blur/shadow, crisp animations,
-      vim + arrow focus, workspaces 1–5
+      vim-position focus (QWERTY / Dvorak / firmware-Dvorak switch in hyprland.lua) + arrows, workspaces 1–5
 - [x] Quickshell bar: workspaces, clock, CPU/RAM/volume meters, status dot
 - [x] kitty, mako themed
 - [x] Design tokens: `tokens.toml` → Quickshell, Hyprland, kitty, mako

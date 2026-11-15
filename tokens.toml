@@ -30,12 +30,19 @@ umber          = "#2B2420"
 umber_deep     = "#1C1713"
 black          = "#000000"
 
+# The desk the papers lie on. Measured in OKLab lightness (see contrast.py):
+# a desk must sit visibly below the paper, and a card's shadow below the desk.
+oak            = "#B39C78"   # day desk        (paper − desk ΔL ≈ 0.23)
+oak_shade      = "#7A6646"   # day card shadow (desk − shadow ΔL ≈ 0.18)
+ebony          = "#120E0B"   # night desk      (paper − desk ΔL ≈ 0.10)
+
 # Accents. The plain name is the "fill" — mid-brightness, for meters, borders,
 # and anything that isn't text. `_ink` is the same hue darkened until it reads
 # as text on parchment (~5.2:1); `_ink_bright` is more saturated at ~4.6:1.
 # `_glow` is the hue lightened to read on umber (~5.5:1); `_glow_bright` is
 # lighter still (~7.5:1) — on a dark background "bright" can just mean lighter.
 amber            = "#C97B3D"
+amber_edge       = "#B0642A"   # amber deepened to 3:1 on parchment (focus border)
 amber_ink        = "#8A5327"
 amber_ink_bright = "#A05419"
 rose             = "#B5654F"
@@ -80,6 +87,9 @@ media         = "rose"             # volume meter
 accentSolid   = "amber_ink"        # a filled accent surface that carries text…
 onAccentSolid = "parchment"        # …and the text on it
 scanline      = "black"
+desk          = "oak"              # desktop background: papers lie on it
+shadow        = "oak_shade"        # hard offset shadow under windows and the bar
+focusBorder   = "amber_edge"       # focused window's edge (a state indicator)
 
 # ── Roles: "night archive" ──────────────────────────────────────────────────
 [roles.dark]
@@ -97,6 +107,9 @@ media         = "rose"
 accentSolid   = "amber"            # the plain fill already passes against umber
 onAccentSolid = "umber"
 scanline      = "black"
+desk          = "ebony"
+shadow        = "black"
+focusBorder   = "amber"            # already 4.6:1 on umber
 
 # ── Terminal (kitty) ────────────────────────────────────────────────────────
 # ANSI semantics are kept in both modes: black is dark and white is light.

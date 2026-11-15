@@ -16,13 +16,22 @@ Singleton {
     // there and `make install`, rather than here.
     readonly property bool darkMode: Tokens.darkMode
 
-    // ── Structural constants (Signalis "equipment casing" bones) ────────────
-    property int  borderWidth: 2        // thick, physical. inactive elems drop to borderThin
-    property int  borderThin: 1
-    property int  radius: 0             // square corners are the default, everywhere
-    property int  barHeight: 26
-    property int  gap: 8                // base spacing unit
-    property int  dotSize: 8            // the 8x8 square status indicator
+    // ── Spacing: one 4px unit ───────────────────────────────────────────────
+    // Every size below is a whole number of units, and the gaps match
+    // Hyprland's (gaps_out = 8, two windows sit 8 apart), so the bar and the
+    // windows share one grid. Change `unit` and everything scales together.
+    readonly property int unit: 4
+    readonly property int gap:          2 * unit   // between any two papers; bar ↔ screen edge
+    readonly property int shadowOffset: unit       // hard shadow, down-right (= Hyprland's)
+    readonly property int barHeight:    7 * unit   // the bar card, border included
+    readonly property int padX:         3 * unit   // inside the bar card, left/right
+    readonly property int groupGap:     6 * unit   // between meters
+    readonly property int labelGap:     2 * unit   // label → its meter
+
+    // Borders: the same 2px as Hyprland's windows; 1px only for recesses.
+    readonly property int borderWidth: 2
+    readonly property int borderThin:  1
+    readonly property int radius: 0    // square corners, everywhere
 
     // Optional CRT scanline overlay — OFF by default (readability first).
     property bool scanlines: false
@@ -34,8 +43,12 @@ Singleton {
     readonly property string fontFamily: monoFont.status === FontLoader.Ready
         ? monoFont.name
         : "JetBrains Mono"
-    property int fontSize: 13
-    property int fontSizeSmall: 11
+    // Departure Mono is a pixel font drawn on an 11px grid: it's only crisp at
+    // 11px (or 22, 33…), so there's one size, and hierarchy comes from color.
+    readonly property int fontSize: 11
+
+    // ── Clock ───────────────────────────────────────────────────────────────
+    property bool clock24h: false      // false: "5:10 pm"; true: "17:10"
 
     FontLoader {
         id: monoFont
@@ -64,4 +77,7 @@ Singleton {
     readonly property color accentSolid:   set.accentSolid     // filled surface with text on it
     readonly property color onAccentSolid: set.onAccentSolid   // …the text
     readonly property color scanline:      set.scanline
+    readonly property color desk:          set.desk          // what the papers lie on
+    readonly property color shadow:        set.shadow        // hard card shadow
+    readonly property color focusBorder:   set.focusBorder
 }

@@ -2,7 +2,8 @@
 -- Required by hyprland.lua. Uses roles.light.
 
 return {
-    accent       = 0xffc97b3d,
-    borderStrong = 0xff8a7654,
-    bgPrimary    = 0xfff3e9d8,
+    focusBorder = 0xffb0642a,
+    border      = 0xffc9b896,
+    desk        = 0xffb39c78,
+    shadow      = 0xff7a6646,
 }

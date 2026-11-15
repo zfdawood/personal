@@ -22,7 +22,10 @@ Singleton {
         media:         "#B5654F",
         accentSolid:   "#8A5327",
         onAccentSolid: "#F3E9D8",
-        scanline:      "#000000"
+        scanline:      "#000000",
+        desk:          "#B39C78",
+        shadow:        "#7A6646",
+        focusBorder:   "#B0642A"
     })
     readonly property var dark: ({
         bgPrimary:     "#2B2420",
@@ -38,6 +41,9 @@ Singleton {
         media:         "#B5654F",
         accentSolid:   "#C97B3D",
         onAccentSolid: "#2B2420",
-        scanline:      "#000000"
+        scanline:      "#000000",
+        desk:          "#120E0B",
+        shadow:        "#000000",
+        focusBorder:   "#C97B3D"
     })
 }

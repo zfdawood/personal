@@ -7,12 +7,22 @@ the horror, minus the clinical grey-and-red.
 
 ## Look
 
-- **Square corners everywhere** (`radius: 0`), thick 2px borders — panels read
-  as physical equipment casing, not flat modern cards.
-- **Monospace everywhere** — Departure Mono (falls back to JetBrains Mono).
-- **Bar-graph meters, not icons** — cpu / ram / volume as proportional fill bars.
-- **Workspaces as numbered squares** — filled on active, outlined when occupied.
-- **8×8 square status dots** instead of status glyphs.
+- **Paper on a desk.** Windows and the bar are parchment cards lying on a
+  darker desk, each with a hard offset shadow (no blur). The step between desk
+  and paper is measured, not eyeballed: `make check` holds it to a minimum
+  OKLab lightness difference in both modes.
+- **One spacing unit (4px).** Every gap on screen is 8px, whether between
+  windows, from window to bar, or from screen edge to paper, and every size
+  in the bar is a whole number of units.
+- **One loud edge.** The focused window's border is amber, at a contrast of
+  at least 3:1 against the paper it outlines (WCAG 1.4.11). Everything else
+  is quiet.
+- **Square corners everywhere** and 2px borders, the same on windows and the bar.
+- **Departure Mono at 11px.** It's a pixel font drawn on an 11px grid, so the
+  bar uses that one size and builds hierarchy from color instead.
+- **Bar-graph meters, not icons**: cpu / ram / volume as proportional fills.
+- **Workspaces as numerals**, with a solid bar under the active one; empty
+  workspaces are faded.
 - **Light "day archive" by default**; one switch in `tokens.toml` for "night archive".
 
 ## Structure
@@ -28,7 +38,7 @@ configs/
     Audio.qml       ← default-sink volume/mute  (singleton)
     Sys.qml         ← cpu + ram from /proc       (singleton)
     shell.qml       ← entry point
-    bar/            ← Bar, Workspaces, Clock, BarMeter, StatusDot
+    bar/            ← Bar, Workspaces, Clock, BarMeter
   hypr/             ← hyprland.lua, hyprpaper.conf, colors.lua (GENERATED)
   kitty/            ← kitty.conf, colors.conf (GENERATED)
   mako/             ← config (GENERATED from templates/mako.config)
