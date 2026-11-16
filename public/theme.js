@@ -1,3 +1,4 @@
+// GENERATED from tokens.toml by tools/gen.py. Edit tokens.toml (or templates/web/), then run `make`.
 // The day/night switch for brand pages. Load it in <head> (before the page renders) so a saved
 // choice applies without a flash. Any element with data-theme-toggle switches the mode; its label
 // comes from brand.css, so this script never touches page markup (Elm's virtual DOM owns that).

@@ -11,12 +11,11 @@ the palette, the type and the pieces, laid out like a specimen sheet.
 
 -}
 
+import Brand exposing (Mode(..))
 import Browser
 import Browser.Navigation as Nav
 import Html exposing (Html, a, article, details, div, figcaption, figure, footer, h1, h2, li, node, p, section, span, summary, table, tbody, td, text, th, thead, tr, ul)
 import Html.Attributes exposing (attribute, class, href, rel, style, type_)
-import Svg exposing (polygon, rect, svg)
-import Svg.Attributes as SA
 import Url exposing (Url)
 import Url.Parser as Parser exposing (Parser)
 
@@ -172,16 +171,27 @@ type alias Swatch =
     { name : String, day : String, night : String, for : String }
 
 
+{-| Day and night come from Brand.elm, generated from cozy-archive's tokens.toml. -}
 swatches : List Swatch
 swatches =
-    [ Swatch "desk" "#B39C78" "#120E0B" "oak by day, ebony by night"
-    , Swatch "sheet" "#F3E9D8" "#2B2420" "parchment, umber"
-    , Swatch "ink" "#2B2420" "#F3E9D8" "text"
-    , Swatch "muted" "#5C4A2E" "#C9B896" "labels, ledes"
-    , Swatch "rule" "#C9B896" "#4A3F35" "hairlines"
-    , Swatch "gel" "#5A3D94" "#BBA5E8" "numbers, dates, asks"
-    , Swatch "pink" "#AD3A6C" "#E58BB0" "marks, links, focus"
-    , Swatch "moss" "#59634F" "#93A087" "done"
+    let
+        day =
+            Brand.palette Day
+
+        night =
+            Brand.palette Night
+
+        swatch name pick for =
+            Swatch name (pick day) (pick night) for
+    in
+    [ swatch "desk" .desk "oak by day, ebony by night"
+    , swatch "sheet" .sheet "parchment, umber"
+    , swatch "ink" .ink "text"
+    , swatch "muted" .muted "labels, ledes"
+    , swatch "rule" .rule "hairlines"
+    , swatch "gel" .gel "numbers, dates, asks"
+    , swatch "pink" .pink "marks, links, focus"
+    , swatch "good" .good "done"
     ]
 
 
@@ -256,72 +266,13 @@ piecesSection =
             , p [] [ text "Detail lives under the line until someone asks for it. The page reads as a short list first." ]
             ]
         , p [ class "sample-hl" ] [ text "One thing per page gets ", span [ class "hl" ] [ text "the highlighter" ], text ", and a quote is set ", span [ class "said" ] [ text "in the purple ink" ], text "." ]
-        , div [ class "glyphrow" ] [ leaf, span [ class "from" ] [ text "a low-poly leaf on the 4px grid, shaded by the same light" ] ]
+        , div [ class "glyphrow" ] [ Brand.leaf, span [ class "from" ] [ text "a low-poly leaf on the 4px grid, shaded by the same light" ] ]
         ]
 
 
 ledgerRow : String -> String -> String -> String -> Html Msg
 ledgerRow entry measure status kind =
     tr [] [ td [] [ Html.b [] [ text entry ] ], td [] [ text measure ], td [] [ span [ class ("tag " ++ kind) ] [ text ("[ " ++ status ++ " ]") ] ] ]
-
-
-{-| A low-poly leaf (the brand skill's glyphs/leaf.svg): eight flat faces either side of a
-curved midrib, lit from the top left, some dithered between two ramp steps like the desk,
-and a pixel staircase for a stem. One viewBox unit is one 4px brand unit.
--}
-leaf : Html Msg
-leaf =
-    svg [ SA.class "glyph", SA.viewBox "0 0 32 20", SA.shapeRendering "crispEdges", attribute "role" "img", attribute "aria-label" "A low-poly leaf" ]
-        [ Svg.defs []
-            [ dither "leaf-d1" "#AEBAA5" "#93A087"
-            , dither "leaf-d2" "#93A087" "#7C8B6F"
-            , dither "leaf-d3" "#7C8B6F" "#5E6D52"
-            , dither "leaf-d4" "#5E6D52" "#59634F"
-            ]
-        , Svg.g [] (List.map pixel stemPixels)
-        , facet "2,10 8,5 8,10.5" "#AEBAA5"
-        , facet "8,5 15,3 15,10 8,10.5" "url(#leaf-d1)"
-        , facet "15,3 22,6 22,9.5 15,10" "#93A087"
-        , facet "22,6 26,10 22,9.5" "url(#leaf-d2)"
-        , facet "2,10 8,10.5 8,14" "#7C8B6F"
-        , facet "8,10.5 15,10 15,16 8,14" "url(#leaf-d3)"
-        , facet "15,10 22,9.5 22,14 15,16" "#5E6D52"
-        , facet "22,9.5 26,10 22,14" "url(#leaf-d4)"
-        ]
-
-
-facet : String -> String -> Html Msg
-facet points fill =
-    polygon [ SA.points points, SA.fill fill ] []
-
-
-{-| A 2×2 checker of two colors: the halfway shade between two ramp steps.
--}
-dither : String -> String -> String -> Html Msg
-dither id base other =
-    Svg.pattern [ SA.id id, SA.width "2", SA.height "2", SA.patternUnits "userSpaceOnUse" ]
-        [ rect [ SA.width "2", SA.height "2", SA.fill base ] []
-        , rect [ SA.width "1", SA.height "1", SA.fill other ] []
-        , rect [ SA.x "1", SA.y "1", SA.width "1", SA.height "1", SA.fill other ] []
-        ]
-
-
-{-| The stem, stepping down to the right: a lit pixel above a shaded one. (x, y, width, color)
--}
-stemPixels : List ( ( Int, Int ), Int, String )
-stemPixels =
-    [ ( ( 25, 9 ), 2, "#7C8B6F" ), ( ( 25, 10 ), 2, "#59634F" )
-    , ( ( 27, 10 ), 2, "#7C8B6F" ), ( ( 27, 11 ), 2, "#59634F" )
-    , ( ( 29, 11 ), 1, "#7C8B6F" ), ( ( 29, 12 ), 1, "#59634F" )
-    , ( ( 30, 12 ), 1, "#5E6D52" ), ( ( 30, 13 ), 1, "#59634F" )
-    , ( ( 31, 13 ), 1, "#5E6D52" ), ( ( 31, 14 ), 1, "#59634F" )
-    ]
-
-
-pixel : ( ( Int, Int ), Int, String ) -> Html Msg
-pixel ( ( x, y ), w, color ) =
-    rect [ SA.x (String.fromInt x), SA.y (String.fromInt y), SA.width (String.fromInt w), SA.height "1", SA.fill color ] []
-
 
 
 -- RULES
