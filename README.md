@@ -6,7 +6,7 @@ routing), styled with my personal brand, and built and served by Cloudflare Page
 
 ```sh
 npm install
-npm run build   # elm make --optimize → dist/elm.js, then public/ is copied into dist/
+npm run build   # scripts/build.sh: elm make --optimize in a temp dir → dist/elm.js, then public/ into dist/
 npm start       # build, then serve dist/ at http://localhost:8000 (deep links fall back to index.html)
 ```
 

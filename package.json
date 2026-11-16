@@ -3,7 +3,7 @@
   "private": true,
   "description": "zdawood.dev: a static Elm site, built by Cloudflare Pages on every push",
   "scripts": {
-    "build": "rm -rf dist && elm make src/Main.elm --optimize --output=dist/elm.js && cp -r public/. dist/",
+    "build": "bash scripts/build.sh",
     "start": "npm run build && node scripts/serve.mjs"
   },
   "devDependencies": {
