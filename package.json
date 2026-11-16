@@ -1,0 +1,15 @@
+{
+  "name": "zdawood-dev",
+  "private": true,
+  "description": "zdawood.dev: a static Elm site, built by Cloudflare Pages on every push",
+  "scripts": {
+    "build": "rm -rf dist && elm make src/Main.elm --optimize --output=dist/elm.js && cp -r public/. dist/",
+    "start": "npm run build && node scripts/serve.mjs"
+  },
+  "devDependencies": {
+    "elm": "0.19.1-6"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

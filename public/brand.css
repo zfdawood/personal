@@ -1,0 +1,133 @@
+/*
+  Z. Dawood's personal brand. Paste this whole file into a page's <style> (or link it from a
+  site). Pair it with the Google Fonts link in SKILL.md.
+
+  A sheet of parchment lying on an oak desk, lit from the top left.
+  From cozy-archive (github.com/zfdawood/cozy-archive): the parchment/umber neutrals and the oak desk
+  from tokens.toml, a hard offset shadow with no blur, corners cut at 45 degrees, one 4px spacing
+  unit, mono labels. From the wins handout (~/wins/handout): serif text, pencilled dates in a hand
+  face, the purple "gel" ink and the subtler pink, a margin rule, faint paper grain, +/- fold-outs.
+  Every color is a token. Day = parchment on oak, night = umber on ebony.
+*/
+:root {
+  --u: 4px;
+  --cut: calc(2 * var(--u));
+  /* Neutrals: cozy-archive's day archive */
+  --desk: #B39C78;        /* oak */
+  --shadow: #7A6646;      /* oak_shade */
+  --sheet: #F3E9D8;       /* parchment */
+  --recess: #E3D5B8;      /* parchment_deep */
+  --lit: #FBF6EC;         /* parchment_hi: the lip on the lit edge */
+  --rule: #C9B896;        /* straw */
+  --rule-shade: #B9A684;  /* straw_shade */
+  --ink: #2B2420;         /* umber */
+  --muted: #5C4A2E;       /* walnut */
+  --faint: #776649;       /* leather_ink */
+  /* Accents: the handout's inks */
+  --gel: #5a3d94;         /* purple: numbers, dates, asks, quotes */
+  --pink: #ad3a6c;        /* marks, links, focus */
+  --hl: rgb(226 128 166 / .24);
+  --margin: rgb(173 58 108 / .45);
+  --good: #59634F;        /* moss_ink */
+  /* Type */
+  --text: "Newsreader", "Iowan Old Style", Charter, Georgia, serif;
+  --head: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --hand: "Kalam", "Segoe Print", "Bradley Hand", cursive;
+  --page: 1200px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --desk: #120E0B; --shadow: #000000; --sheet: #2B2420; --recess: #1C1713; --lit: #3A3129;
+    --rule: #4A3F35; --rule-shade: #3A3129; --ink: #F3E9D8; --muted: #C9B896; --faint: #A18A64;
+    --gel: #bba5e8; --pink: #e58bb0; --hl: rgb(229 139 176 / .2); --margin: rgb(229 139 176 / .35);
+    --good: #93A087; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --desk: #120E0B; --shadow: #000000; --sheet: #2B2420; --recess: #1C1713; --lit: #3A3129;
+  --rule: #4A3F35; --rule-shade: #3A3129; --ink: #F3E9D8; --muted: #C9B896; --faint: #A18A64;
+  --gel: #bba5e8; --pink: #e58bb0; --hl: rgb(229 139 176 / .2); --margin: rgb(229 139 176 / .35);
+  --good: #93A087; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+::selection { background: var(--hl); }
+:focus-visible { outline: 2px solid var(--pink); outline-offset: 2px; }
+body {
+  margin: 0; background: var(--desk); color: var(--ink);
+  font: 400 17px/1.55 var(--text); font-optical-sizing: auto;
+  font-variant-numeric: lining-nums tabular-nums;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: calc(8 * var(--u)) calc(16 * var(--u));
+}
+a { color: inherit; text-decoration-color: var(--pink); text-underline-offset: 3px; }
+code { font: 400 .82em/1.4 var(--mono); }
+
+/* The sheet: parchment with cut corners, a hard shadow down-right, a lit top/left lip, a margin rule. */
+.paper { max-width: var(--page); margin: 0 auto; filter: drop-shadow(var(--u) var(--u) 0 var(--shadow)); }
+.sheet {
+  position: relative; background-color: var(--sheet);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .33 0 0 0 0 .2 0 0 0 .08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut));
+  box-shadow: inset 2px 2px 0 var(--lit), inset -2px -2px 0 var(--rule-shade);
+  padding: calc(8 * var(--u)) calc(10 * var(--u)) calc(9 * var(--u)) calc(15 * var(--u));
+}
+.sheet::before { content: ""; position: absolute; top: 0; bottom: 0; left: calc(9 * var(--u)); border-left: 1px solid var(--margin); }
+
+/* Masthead. Top-level headings are mono; everything else keeps its face. */
+.kicker { font: 600 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--gel); margin: 0 0 calc(3 * var(--u)); }
+h1 { margin: 0; font: 700 30px/1.15 var(--mono); letter-spacing: -0.02em; text-wrap: balance; }
+h2 { margin: 0 0 var(--u); font: 700 20px/1.25 var(--mono); letter-spacing: -0.01em; text-wrap: balance; }
+.byline { display: flex; flex-wrap: wrap; gap: calc(2 * var(--u)) calc(4 * var(--u)); align-items: baseline; margin-top: calc(2 * var(--u)); color: var(--muted); }
+.byline .when, .pencil { font: 400 18px/1 var(--hand); color: var(--gel); }
+.lede { margin: calc(5 * var(--u)) 0 0; max-width: 80ch; font-style: italic; color: var(--muted); }
+h4 { margin: calc(4 * var(--u)) 0 var(--u); font: 600 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+
+/* Inline marks */
+.hl { background: linear-gradient(to bottom, transparent 30%, var(--hl) 30%, var(--hl) 90%, transparent 90%); box-decoration-break: clone; -webkit-box-decoration-break: clone; padding: 0 2px; font-weight: 550; }
+.said { font-style: italic; color: var(--gel); }
+.ask { color: var(--gel); font-weight: 600; }
+.from { margin-top: calc(3 * var(--u)); font: 400 12px/1.5 var(--mono); color: var(--faint); }
+
+/* A small cut-corner button */
+button.chip {
+  font: 600 11px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink);
+  background: var(--recess); border: 0; cursor: pointer; padding: calc(2 * var(--u)) calc(3 * var(--u));
+  clip-path: polygon(var(--u) 0, calc(100% - var(--u)) 0, 100% var(--u), 100% calc(100% - var(--u)), calc(100% - var(--u)) 100%, var(--u) 100%, 0 calc(100% - var(--u)), 0 var(--u));
+  box-shadow: inset 1px 1px 0 var(--lit), inset -1px -1px 0 var(--rule-shade);
+}
+button.chip:hover { color: var(--pink); }
+
+/* Tables, ruled like a ledger */
+.tablewrap { overflow-x: auto; margin: calc(2 * var(--u)) 0 calc(3 * var(--u)); }
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+th, td { text-align: left; padding: calc(1.5 * var(--u)) calc(3 * var(--u)) calc(1.5 * var(--u)) 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+thead th { font: 600 10.5px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--ink); }
+td.num, th.num { text-align: right; }
+td b { font: 700 14.5px var(--head); font-variation-settings: "wdth" 100; }
+
+/* Fold-outs: a <details> whose summary carries a +/- mark */
+details > summary { list-style: none; cursor: pointer; }
+details > summary::-webkit-details-marker { display: none; }
+.mark { font: 700 16px/1 var(--mono); color: var(--pink); width: calc(4 * var(--u)); text-align: center; }
+.mark::before { content: "+"; }
+details[open] > summary .mark::before { content: "\2212"; }
+
+footer { max-width: var(--page); margin: calc(6 * var(--u)) auto 0; color: var(--sheet); font: 400 12px/1.6 var(--mono); }
+:root[data-theme="dark"] footer { color: var(--muted); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) footer { color: var(--muted); } }
+
+@media (max-width: 640px) {
+  body { font-size: 16px; padding-block: calc(4 * var(--u)) calc(10 * var(--u)); }
+  .sheet { padding: calc(6 * var(--u)) calc(4 * var(--u)) calc(6 * var(--u)) calc(8 * var(--u)); }
+  .sheet::before { left: calc(4 * var(--u)); }
+  h1 { font-size: 24px; }
+}
+@media print {
+  body, .sheet { background: #fff; }
+  .paper { filter: none; }
+  .sheet { clip-path: none; box-shadow: none; }
+  button.chip { display: none; }
+}
