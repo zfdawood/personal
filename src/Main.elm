@@ -13,8 +13,8 @@ the palette, the type and the pieces, laid out like a specimen sheet.
 
 import Browser
 import Browser.Navigation as Nav
-import Html exposing (Html, a, article, details, div, figcaption, figure, footer, h1, h2, img, li, node, p, section, span, summary, table, tbody, td, text, th, thead, tr, ul)
-import Html.Attributes exposing (alt, attribute, class, href, rel, src, style)
+import Html exposing (Html, a, article, details, div, figcaption, figure, footer, h1, h2, li, node, p, section, span, summary, table, tbody, td, text, th, thead, tr, ul)
+import Html.Attributes exposing (attribute, class, href, rel, style, type_)
 import Svg exposing (polygon, rect, svg)
 import Svg.Attributes as SA
 import Url exposing (Url)
@@ -27,6 +27,7 @@ import Url.Parser as Parser exposing (Parser)
 
 type Route
     = Home
+    | Cv
     | NotFound
 
 
@@ -34,6 +35,7 @@ routeParser : Parser (Route -> a) a
 routeParser =
     Parser.oneOf
         [ Parser.map Home Parser.top
+        , Parser.map Cv (Parser.s "cv")
         ]
 
 
@@ -87,19 +89,41 @@ view : Model -> Browser.Document Msg
 view model =
     case model.route of
         Home ->
-            { title = "Z. Dawood", body = page homeSheet }
+            { title = "Z. Dawood", body = page [ "index", "specimen sheet" ] homeSheet }
+
+        Cv ->
+            { title = "CV · Z. Dawood", body = page [ "cv" ] cvSheet }
 
         NotFound ->
-            { title = "Not found · Z. Dawood", body = page notFoundSheet }
+            { title = "Not found · Z. Dawood", body = page [ "404" ] notFoundSheet }
 
 
-{-| A sheet on the desk, with the footer under it.
+{-| A sheet on the desk: the bevel's eight faces, the file header strip (with the day/night
+switch at its end), then the page. The footer sits on the desk under it. The switch only
+carries data-theme-toggle: public/theme.js flips the mode and brand.css draws the label, so
+nothing outside Elm edits Elm's DOM.
 -}
-page : List (Html Msg) -> List (Html Msg)
-page sheet =
-    [ div [ class "paper" ] [ article [ class "sheet" ] sheet ]
-    , footer [] [ text "zdawood.dev · built in Elm · lit from the top left" ]
+page : List String -> List (Html Msg) -> List (Html Msg)
+page path sheet =
+    [ div [ class "paper" ]
+        [ article [ class "sheet" ]
+            (bevel :: readout path :: sheet)
+        ]
+    , footer [] [ span [] [ text "zdawood.dev · built in Elm · lit from the top left" ] ]
     ]
+
+
+bevel : Html Msg
+bevel =
+    span [ class "bevel", attribute "aria-hidden" "true" ] (List.repeat 8 (node "i" [] []))
+
+
+readout : List String -> Html Msg
+readout path =
+    div [ class "readout" ]
+        (List.intersperse (span [] [ text "/" ]) (List.map (\part -> span [] [ text part ]) ("zdawood.dev" :: path))
+            ++ [ Html.button [ class "chip", type_ "button", attribute "data-theme-toggle" "", attribute "aria-label" "Switch between day and night" ] [] ]
+        )
 
 
 homeSheet : List (Html Msg)
@@ -107,7 +131,8 @@ homeSheet =
     [ p [ class "kicker" ] [ text "zdawood.dev" ]
     , h1 [] [ text "z. dawood" ]
     , ul [ class "links" ]
-        [ li [] [ outbound "https://github.com/zfdawood" "github" ]
+        [ li [] [ a [ class "chip", href "/cv" ] [ text "cv" ] ]
+        , li [] [ outbound "https://github.com/zfdawood" "github" ]
         , li [] [ outbound "https://www.linkedin.com/in/z-dawood/" "linkedin" ]
         ]
     , deskSection
@@ -120,7 +145,7 @@ homeSheet =
 
 outbound : String -> String -> Html Msg
 outbound url label =
-    a [ class "chiplink", href url, rel "me noopener" ] [ text label ]
+    a [ class "chip", href url, rel "me noopener" ] [ text label ]
 
 
 
@@ -132,11 +157,7 @@ deskSection =
     section []
         [ h2 [] [ text "the desk" ]
         , figure [ class "desk" ]
-            [ node "picture"
-                []
-                [ node "source" [ attribute "srcset" "/desk-dark.png", attribute "media" "(prefers-color-scheme: dark)" ] []
-                , img [ src "/desk-light.png", alt "Low-poly wooden planks with vines growing across them, in a dithered pixel style." ] []
-                ]
+            [ div [ class "deskview", attribute "role" "img", attribute "aria-label" "Low-poly wooden planks with vines growing across them, in a dithered pixel style." ] []
             , figcaption []
                 [ text "Everything sits on this. Low-poly planks and vines drawn by code at 320×200, each material dithered to its own four-color ramp, and shown at exactly 4× so one pixel is one spacing unit. Same seed, same picture. Night mode gets ebony boards." ]
             ]
@@ -225,8 +246,8 @@ piecesSection =
                 , tbody []
                     [ ledgerRow "Cut corners" "45°" "kept" "good"
                     , ledgerRow "Hard shadow" "1 unit, no blur" "kept" "good"
-                    , ledgerRow "Dithered shadow" "2 units, 4×4 Bayer" "proposed" "ask"
-                    , ledgerRow "Scanlines" "6%, opt-in" "parked" "parked"
+                    , ledgerRow "Flat-shaded bevel" "8 faces, Lambert" "kept" "good"
+                    , ledgerRow "Dithered shadow" "2 units, 4×4 Bayer" "parked" "parked"
                     ]
                 ]
             ]
@@ -241,20 +262,65 @@ piecesSection =
 
 ledgerRow : String -> String -> String -> String -> Html Msg
 ledgerRow entry measure status kind =
-    tr [] [ td [] [ Html.b [] [ text entry ] ], td [] [ text measure ], td [ class ("status " ++ kind) ] [ text status ] ]
+    tr [] [ td [] [ Html.b [] [ text entry ] ], td [] [ text measure ], td [] [ span [ class ("tag " ++ kind) ] [ text ("[ " ++ status ++ " ]") ] ] ]
 
 
-{-| Four flat faces lit from the top left: the face pointing up-left is brightest.
+{-| A low-poly leaf (the brand skill's glyphs/leaf.svg): eight flat faces either side of a
+curved midrib, lit from the top left, some dithered between two ramp steps like the desk,
+and a pixel staircase for a stem. One viewBox unit is one 4px brand unit.
 -}
 leaf : Html Msg
 leaf =
-    svg [ SA.class "glyph", SA.viewBox "0 0 24 16", SA.shapeRendering "crispEdges", attribute "role" "img", attribute "aria-label" "A low-poly leaf" ]
-        [ polygon [ SA.points "2,8 12,2 12,8", SA.fill "#AEBAA5" ] []
-        , polygon [ SA.points "12,2 22,8 12,8", SA.fill "#93A087" ] []
-        , polygon [ SA.points "2,8 12,8 12,14", SA.fill "#7C8B6F" ] []
-        , polygon [ SA.points "12,8 22,8 12,14", SA.fill "#59634F" ] []
-        , rect [ SA.x "21", SA.y "7", SA.width "3", SA.height "2", SA.fill "#5C4A2E" ] []
+    svg [ SA.class "glyph", SA.viewBox "0 0 32 20", SA.shapeRendering "crispEdges", attribute "role" "img", attribute "aria-label" "A low-poly leaf" ]
+        [ Svg.defs []
+            [ dither "leaf-d1" "#AEBAA5" "#93A087"
+            , dither "leaf-d2" "#93A087" "#7C8B6F"
+            , dither "leaf-d3" "#7C8B6F" "#5E6D52"
+            , dither "leaf-d4" "#5E6D52" "#59634F"
+            ]
+        , Svg.g [] (List.map pixel stemPixels)
+        , facet "2,10 8,5 8,10.5" "#AEBAA5"
+        , facet "8,5 15,3 15,10 8,10.5" "url(#leaf-d1)"
+        , facet "15,3 22,6 22,9.5 15,10" "#93A087"
+        , facet "22,6 26,10 22,9.5" "url(#leaf-d2)"
+        , facet "2,10 8,10.5 8,14" "#7C8B6F"
+        , facet "8,10.5 15,10 15,16 8,14" "url(#leaf-d3)"
+        , facet "15,10 22,9.5 22,14 15,16" "#5E6D52"
+        , facet "22,9.5 26,10 22,14" "url(#leaf-d4)"
         ]
+
+
+facet : String -> String -> Html Msg
+facet points fill =
+    polygon [ SA.points points, SA.fill fill ] []
+
+
+{-| A 2×2 checker of two colors: the halfway shade between two ramp steps.
+-}
+dither : String -> String -> String -> Html Msg
+dither id base other =
+    Svg.pattern [ SA.id id, SA.width "2", SA.height "2", SA.patternUnits "userSpaceOnUse" ]
+        [ rect [ SA.width "2", SA.height "2", SA.fill base ] []
+        , rect [ SA.width "1", SA.height "1", SA.fill other ] []
+        , rect [ SA.x "1", SA.y "1", SA.width "1", SA.height "1", SA.fill other ] []
+        ]
+
+
+{-| The stem, stepping down to the right: a lit pixel above a shaded one. (x, y, width, color)
+-}
+stemPixels : List ( ( Int, Int ), Int, String )
+stemPixels =
+    [ ( ( 25, 9 ), 2, "#7C8B6F" ), ( ( 25, 10 ), 2, "#59634F" )
+    , ( ( 27, 10 ), 2, "#7C8B6F" ), ( ( 27, 11 ), 2, "#59634F" )
+    , ( ( 29, 11 ), 1, "#7C8B6F" ), ( ( 29, 12 ), 1, "#59634F" )
+    , ( ( 30, 12 ), 1, "#5E6D52" ), ( ( 30, 13 ), 1, "#59634F" )
+    , ( ( 31, 13 ), 1, "#5E6D52" ), ( ( 31, 14 ), 1, "#59634F" )
+    ]
+
+
+pixel : ( ( Int, Int ), Int, String ) -> Html Msg
+pixel ( ( x, y ), w, color ) =
+    rect [ SA.x (String.fromInt x), SA.y (String.fromInt y), SA.width (String.fromInt w), SA.height "1", SA.fill color ] []
 
 
 
@@ -273,6 +339,25 @@ rulesSection =
             , li [] [ text "Day and night, always." ]
             ]
         ]
+
+
+
+-- CV
+
+
+{-| A placeholder until the real CV is written (he's writing that copy himself).
+-}
+cvSheet : List (Html Msg)
+cvSheet =
+    [ p [ class "kicker" ] [ text "cv" ]
+    , h1 [] [ text "z. dawood" ]
+    , p [ class "lede" ]
+        [ text "Being filed. Until then, "
+        , a [ href "https://www.linkedin.com/in/z-dawood/" ] [ text "LinkedIn" ]
+        , text " has it."
+        ]
+    , ul [ class "links" ] [ li [] [ a [ class "chip", href "/" ] [ text "front page" ] ] ]
+    ]
 
 
 
