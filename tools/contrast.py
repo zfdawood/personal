@@ -144,6 +144,44 @@ STEP_RULES: list[Step] = [
     Step("desk", "shadow", 0.05, "a card's shadow shows on the desk"),
 ]
 
+# The web sheet (brand.css): text on the parchment, chips and the footer label on
+# the recess, and the same paper-over-desk steps as the desktop.
+WEB_RULES: list[Rule] = [
+    Rule("ink", "sheet", AAA, "running text"),
+    Rule("muted", "sheet", AA, "ledes, labels, captions"),
+    Rule("faint", "sheet", AA, "source lines, the header strip"),
+    Rule("gel", "sheet", AA, "item numbers, dates, asks, quotes"),
+    Rule("pink", "sheet", AA, "+/- marks"),
+    Rule("good", "sheet", AA, "done tags"),
+    Rule("ink", "recess", AA, "chip labels"),
+    Rule("muted", "recess", AA, "the footer label"),
+    Rule("sheet", "ink", AA, "a focused chip (inverted block)"),
+]
+WEB_STEPS: list[Step] = [
+    Step("sheet", "desk", 0.09, "the sheet lies on the desk"),
+    Step("desk", "shadow", 0.05, "the sheet's shadow shows on the desk"),
+]
+
+# Editors (Zed, VS Code): UI text on its surfaces, and every code color as text
+# on the editor background (checked as syntax.* against editor.background).
+EDITOR_RULES: list[Rule] = [
+    Rule("text", "background", AAA, "code and body text"),
+    Rule("textMuted", "background", AA, "secondary text"),
+    Rule("textFaint", "background", AA, "line numbers, placeholders"),
+    Rule("text", "surface", AA, "sidebar and panel text"),
+    Rule("textMuted", "surface", AA, "inactive tab titles"),
+    Rule("text", "chrome", AA, "title and status bars"),
+    Rule("text", "selection", AA, "selected text"),
+    Rule("text", "lineHighlight", AAA, "the current line"),
+    Rule("onAccentSolid", "accentSolid", AA, "button and badge text"),
+    Rule("accent", "background", NON_TEXT, "focus borders"),
+    Rule("cursor", "background", NON_TEXT, "the cursor"),
+    *(Rule(k, "background", AA, "diagnostic text") for k in ("error", "warning", "success", "info")),
+]
+SYNTAX_KEYS = ("comment", "keyword", "string", "number", "constant", "function", "type", "tag",
+               "attribute", "property", "variable", "operator", "punctuation")
+SYNTAX_RULES: list[Rule] = [Rule(f"syntax.{k}", "background", AA, "code") for k in SYNTAX_KEYS]
+
 
 @dataclass(frozen=True)
 class Result:
@@ -223,6 +261,15 @@ def check() -> int:
             *_report(f"terminal.{mode}", TERMINAL_RULES[mode], t.terminal[mode], tty),
             *_report(f"roles.{mode}", ROLE_RULES, t.roles[mode], tty),
             *_report_steps(f"surfaces.{mode}", STEP_RULES, t.roles[mode], tty),
+            *_report(f"web.{mode}", WEB_RULES, t.web[mode], tty),
+            *_report_steps(f"web surfaces.{mode}", WEB_STEPS, t.web[mode], tty),
+            *_report(f"editor.{mode}", EDITOR_RULES, t.editor[mode], tty),
+            *_report(
+                f"syntax.{mode}",
+                SYNTAX_RULES,
+                {"background": t.editor[mode]["background"], **{f"syntax.{k}": v for k, v in t.syntax[mode].items()}},
+                tty,
+            ),
         )
     ]
     print(f"active mode: {t.mode}")

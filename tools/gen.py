@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Render every app's colors from tokens.toml.
+"""Render every app's colors (and the brand's web and editor files) from tokens.toml.
 
     tools/gen.py           write the generated files under configs/
     tools/gen.py --check   exit 1 if any generated file is out of date
-    tools/gen.py --list    print generated paths, relative to configs/
+    tools/gen.py --list    print generated paths, relative to the repo
 
 Each renderer is a pure function Tokens → str; the generated files are
 committed so install.sh works on a fresh clone without running anything.
@@ -18,6 +18,7 @@ from functools import partial
 from string import Template
 from typing import Callable, Mapping
 
+import brand
 from tokens import MODES, REPO, Tokens, load
 
 CONFIGS = REPO / "configs"
@@ -69,6 +70,10 @@ def tokens_qml(t: Tokens) -> str:
         "Singleton {\n"
         f"    // tokens.toml `mode`; Theme.darkMode follows it.\n"
         f"    readonly property bool darkMode: {'true' if t.mode == 'dark' else 'false'}\n"
+        "    // [structure]: Theme.qml sizes everything in these.\n"
+        f"    readonly property int unit: {t.structure['unit']}\n"
+        f"    readonly property int cut: {t.structure['cut']}\n"
+        f"    readonly property int shadow: {t.structure['shadow']}\n"
         f"    readonly property var light: {obj(t.roles['light'])}\n"
         f"    readonly property var dark: {obj(t.roles['dark'])}\n"
         "}\n"
@@ -98,6 +103,18 @@ OUTPUTS: dict[Path, Callable[[Tokens], str]] = {
     CONFIGS / "hypr" / "colors.lua": hypr,
     CONFIGS / "quickshell" / "Tokens.qml": tokens_qml,
     CONFIGS / "cozy-archive" / "settings.json": settings,
+    # Everything else that wears the brand (tools/brand.py).
+    REPO / "web" / "brand.css": brand.brand_css,
+    REPO / "web" / "theme.js": brand.theme_js,
+    REPO / "web" / "glyphs" / "leaf.svg": brand.leaf_svg,
+    REPO / "web" / "Brand.elm": brand.brand_elm,
+    REPO / "editors" / "zed" / "cozy-archive.json": brand.zed,
+    REPO / "editors" / "vscode" / "package.json": brand.vscode_package,
+    **{
+        REPO / "editors" / "vscode" / "themes" / f"cozy-archive-{'day' if m == 'light' else 'night'}.json":
+            partial(brand.vscode_theme, mode=m)
+        for m in MODES
+    },
 }
 
 
@@ -107,7 +124,7 @@ def render(t: Tokens) -> dict[Path, str]:
 
 def main(argv: list[str]) -> int:
     if "--list" in argv:
-        print("\n".join(str(p.relative_to(CONFIGS)) for p in OUTPUTS))
+        print("\n".join(str(p.relative_to(REPO)) for p in OUTPUTS))
         return 0
 
     rendered = render(load())

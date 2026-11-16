@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="glyph" viewBox="0 0 32 20" shape-rendering="crispEdges" role="img" aria-label="A low-poly leaf">
+  <!-- GENERATED from tokens.toml by tools/gen.py. Edit tokens.toml (or templates/web/), then run `make`.
+       One viewBox unit is one brand unit: show it 32 by 20 units. -->
+  <defs>
+    <pattern id="leaf-aebaa5-93a087" width="2" height="2" patternUnits="userSpaceOnUse"><rect width="2" height="2" fill="#AEBAA5"/><rect width="1" height="1" fill="#93A087"/><rect x="1" y="1" width="1" height="1" fill="#93A087"/></pattern>
+    <pattern id="leaf-93a087-7c8b6f" width="2" height="2" patternUnits="userSpaceOnUse"><rect width="2" height="2" fill="#93A087"/><rect width="1" height="1" fill="#7C8B6F"/><rect x="1" y="1" width="1" height="1" fill="#7C8B6F"/></pattern>
+    <pattern id="leaf-7c8b6f-5e6d52" width="2" height="2" patternUnits="userSpaceOnUse"><rect width="2" height="2" fill="#7C8B6F"/><rect width="1" height="1" fill="#5E6D52"/><rect x="1" y="1" width="1" height="1" fill="#5E6D52"/></pattern>
+    <pattern id="leaf-5e6d52-59634f" width="2" height="2" patternUnits="userSpaceOnUse"><rect width="2" height="2" fill="#5E6D52"/><rect width="1" height="1" fill="#59634F"/><rect x="1" y="1" width="1" height="1" fill="#59634F"/></pattern>
+  </defs>
+  <g>
+    <rect x="25" y="9" width="2" height="1" fill="#7C8B6F"/>
+    <rect x="25" y="10" width="2" height="1" fill="#59634F"/>
+    <rect x="27" y="10" width="2" height="1" fill="#7C8B6F"/>
+    <rect x="27" y="11" width="2" height="1" fill="#59634F"/>
+    <rect x="29" y="11" width="1" height="1" fill="#7C8B6F"/>
+    <rect x="29" y="12" width="1" height="1" fill="#59634F"/>
+    <rect x="30" y="12" width="1" height="1" fill="#5E6D52"/>
+    <rect x="30" y="13" width="1" height="1" fill="#59634F"/>
+    <rect x="31" y="13" width="1" height="1" fill="#5E6D52"/>
+    <rect x="31" y="14" width="1" height="1" fill="#59634F"/>
+  </g>
+  <polygon points="2,10 8,5 8,10.5" fill="#AEBAA5"/>
+  <polygon points="8,5 15,3 15,10 8,10.5" fill="url(#leaf-aebaa5-93a087)"/>
+  <polygon points="15,3 22,6 22,9.5 15,10" fill="#93A087"/>
+  <polygon points="22,6 26,10 22,9.5" fill="url(#leaf-93a087-7c8b6f)"/>
+  <polygon points="2,10 8,10.5 8,14" fill="#7C8B6F"/>
+  <polygon points="8,10.5 15,10 15,16 8,14" fill="url(#leaf-7c8b6f-5e6d52)"/>
+  <polygon points="15,10 22,9.5 22,14 15,16" fill="#5E6D52"/>
+  <polygon points="22,9.5 26,10 22,14" fill="url(#leaf-5e6d52-59634f)"/>
+</svg>

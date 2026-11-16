@@ -1,0 +1,150 @@
+/*
+  Z. Dawood's personal brand: the component rules. HAND-WRITTEN.
+  gen.py prepends the generated custom properties (colors for both modes, the bevel faces, the
+  desk, structure and type) and writes the result to web/brand.css. These rules read only those
+  properties, never a literal color, so tokens.toml stays the single source.
+
+  Markup the look depends on:
+    <div class="paper"><article class="sheet">
+      <span class="bevel" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      <div class="readout"><span>archive</span><span>/</span>...<button class="chip" type="button" data-theme-toggle aria-label="Switch between day and night"></button></div>
+      ...
+    </article></div>
+    <footer><span>...</span></footer>
+*/
+
+* { box-sizing: border-box; }
+::selection { background: var(--hl); }
+:focus-visible { outline: 2px solid var(--pink); outline-offset: 2px; }
+body {
+  margin: 0; background: var(--desk); color: var(--ink);
+  font: 400 17px/1.55 var(--text); font-optical-sizing: auto;
+  font-variant-numeric: lining-nums tabular-nums;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: calc(8 * var(--u)) calc(16 * var(--u));
+}
+/* The desk: the wallpaper at exactly 4x, so one wallpaper pixel is one unit. It sits on its own
+   fixed layer because image-rendering is inherited, and only the desk should be pixelated. */
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: var(--desk-img) 0 0 / var(--desk-size) repeat; image-rendering: pixelated;
+}
+a { color: inherit; text-decoration-color: var(--pink); text-underline-offset: 3px; }
+code { font: 400 .82em/1.4 var(--mono); }
+
+/* The sheet: parchment with cut corners, a hard shadow down-right, a margin rule. */
+.paper { max-width: var(--page); margin: 0 auto; filter: drop-shadow(var(--shadow-offset) var(--shadow-offset) 0 var(--shadow)); }
+.sheet {
+  position: relative; background-color: var(--sheet);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .33 0 0 0 0 .2 0 0 0 .08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut));
+  padding: calc(8 * var(--u)) calc(10 * var(--u)) calc(9 * var(--u)) calc(15 * var(--u));
+}
+.sheet::before { content: ""; position: absolute; top: 0; bottom: 0; left: calc(9 * var(--u)); border-left: 1px solid var(--margin); }
+/* A sheet without bevel markup still gets a lit and a shaded edge. */
+.sheet:not(:has(> .bevel)) { box-shadow: inset 2px 2px 0 var(--lit), inset -2px -2px 0 var(--rule-shade); }
+
+/* The flat-shaded bevel: eight faces, top first, clockwise. Their colors (--bevel-1..8) are
+   computed by gen.py with Card.qml's rule: Lambert's cosine against the top-left light, mapped
+   to [0,1], mixing --rule-shade to --lit in OKLab. */
+.bevel { --k: calc(var(--cut) + var(--bevel) * 0.4142); position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+.bevel i { position: absolute; inset: 0; }
+.bevel i:nth-child(1) { background: var(--bevel-1); clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, calc(100% - var(--k)) var(--bevel), var(--k) var(--bevel)); }
+.bevel i:nth-child(2) { background: var(--bevel-2); clip-path: polygon(calc(100% - var(--cut)) 0, 100% var(--cut), calc(100% - var(--bevel)) var(--k), calc(100% - var(--k)) var(--bevel)); }
+.bevel i:nth-child(3) { background: var(--bevel-3); clip-path: polygon(100% var(--cut), 100% calc(100% - var(--cut)), calc(100% - var(--bevel)) calc(100% - var(--k)), calc(100% - var(--bevel)) var(--k)); }
+.bevel i:nth-child(4) { background: var(--bevel-4); clip-path: polygon(100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, calc(100% - var(--k)) calc(100% - var(--bevel)), calc(100% - var(--bevel)) calc(100% - var(--k))); }
+.bevel i:nth-child(5) { background: var(--bevel-5); clip-path: polygon(calc(100% - var(--cut)) 100%, var(--cut) 100%, var(--k) calc(100% - var(--bevel)), calc(100% - var(--k)) calc(100% - var(--bevel))); }
+.bevel i:nth-child(6) { background: var(--bevel-6); clip-path: polygon(var(--cut) 100%, 0 calc(100% - var(--cut)), var(--bevel) calc(100% - var(--k)), var(--k) calc(100% - var(--bevel))); }
+.bevel i:nth-child(7) { background: var(--bevel-7); clip-path: polygon(0 calc(100% - var(--cut)), 0 var(--cut), var(--bevel) var(--k), var(--bevel) calc(100% - var(--k))); }
+.bevel i:nth-child(8) { background: var(--bevel-8); clip-path: polygon(0 var(--cut), var(--cut) 0, var(--k) var(--bevel), var(--bevel) var(--k)); }
+
+/* The file header strip: a faint record header across the top of the sheet. The day/night
+   switch sits at its right end. */
+.readout {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--u) calc(2 * var(--u));
+  margin: calc(-3 * var(--u)) 0 calc(6 * var(--u)); padding-bottom: calc(2 * var(--u));
+  border-bottom: 1px dashed var(--rule);
+  font: 600 10px/1.6 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--faint);
+}
+.readout b { color: var(--gel); font-weight: 600; }
+.readout [data-theme-toggle] { margin-left: auto; }
+
+/* Masthead. Top-level headings are mono; everything else keeps its face. */
+.kicker { font: 600 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--gel); margin: 0 0 calc(3 * var(--u)); }
+h1 { margin: 0; font: 700 30px/1.15 var(--mono); letter-spacing: -0.02em; text-wrap: balance; }
+h2 { margin: 0 0 var(--u); font: 700 20px/1.25 var(--mono); letter-spacing: -0.01em; text-wrap: balance; }
+.byline { display: flex; flex-wrap: wrap; gap: calc(2 * var(--u)) calc(4 * var(--u)); align-items: baseline; margin-top: calc(2 * var(--u)); color: var(--muted); }
+.byline .when, .pencil { font: 400 18px/1 var(--hand); color: var(--gel); }
+.lede { margin: calc(5 * var(--u)) 0 0; max-width: 80ch; font-style: italic; color: var(--muted); }
+h4 { margin: calc(4 * var(--u)) 0 var(--u); font: 600 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+
+/* Inline marks */
+.hl { background: linear-gradient(to bottom, transparent 30%, var(--hl) 30%, var(--hl) 90%, transparent 90%); box-decoration-break: clone; -webkit-box-decoration-break: clone; padding: 0 2px; font-weight: 550; }
+.said { font-style: italic; color: var(--gel); }
+.ask { color: var(--gel); font-weight: 600; }
+.from { margin-top: calc(3 * var(--u)); font: 400 12px/1.5 var(--mono); color: var(--faint); }
+
+/* Cut-corner chips: buttons, link chips, and bracketed status tags. */
+button.chip, a.chip, .tag {
+  display: inline-block; font: 600 11px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase;
+  color: var(--ink); background: var(--recess); border: 0; padding: calc(2 * var(--u)) calc(3 * var(--u));
+  text-decoration: none; white-space: pre;
+  clip-path: polygon(var(--u) 0, calc(100% - var(--u)) 0, 100% var(--u), 100% calc(100% - var(--u)), calc(100% - var(--u)) 100%, var(--u) 100%, 0 calc(100% - var(--u)), 0 var(--u));
+  box-shadow: inset 1px 1px 0 var(--lit), inset -1px -1px 0 var(--rule-shade);
+}
+button.chip, a.chip { cursor: pointer; }
+button.chip:hover, a.chip:hover { color: var(--pink); }
+a.chip[href^="http"]::after { content: " \2197"; color: var(--pink); }
+/* Focus is an inverted block, like a terminal cursor (on controls only; text selection stays pink). */
+button.chip:focus-visible, a.chip:focus-visible { outline: 0; background: var(--ink); color: var(--sheet); box-shadow: none; }
+.tag { padding: calc(1.5 * var(--u)) calc(2 * var(--u)); }
+.tag.ask { color: var(--gel); }
+.tag.good { color: var(--good); }
+.tag.parked { color: var(--faint); }
+
+/* The day/night switch names the mode it switches to. theme.js sets data-theme on <html>. */
+[data-theme-toggle]::after { content: "night"; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) [data-theme-toggle]::after { content: "day"; } }
+:root[data-theme="dark"] [data-theme-toggle]::after { content: "day"; }
+
+/* Tables, ruled like a ledger */
+.tablewrap { overflow-x: auto; margin: calc(2 * var(--u)) 0 calc(3 * var(--u)); }
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+th, td { text-align: left; padding: calc(1.5 * var(--u)) calc(3 * var(--u)) calc(1.5 * var(--u)) 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+thead th { font: 600 10.5px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--ink); }
+td.num, th.num { text-align: right; }
+td b { font: 700 14.5px var(--head); font-variation-settings: "wdth" 100; }
+
+/* Fold-outs: a <details> whose summary carries a +/- mark */
+details > summary { list-style: none; cursor: pointer; }
+details > summary::-webkit-details-marker { display: none; }
+.mark { font: 700 16px/1 var(--mono); color: var(--pink); width: calc(4 * var(--u)); text-align: center; }
+.mark::before { content: "+"; }
+details[open] > summary .mark::before { content: "\2212"; }
+
+/* Low-poly glyphs: SVG on the 4px grid (glyphs/ in the brand skill). */
+svg.glyph { display: block; width: calc(32 * var(--u)); height: auto; flex: none; }
+
+/* The footer sits on the desk, so it gets its own small label to stay readable on the wood. */
+footer { max-width: var(--page); margin: calc(6 * var(--u)) auto 0; }
+footer > span {
+  display: inline-block; font: 400 12px/1.5 var(--mono); color: var(--muted); background: var(--recess);
+  padding: calc(1.5 * var(--u)) calc(3 * var(--u));
+  clip-path: polygon(var(--u) 0, calc(100% - var(--u)) 0, 100% var(--u), 100% calc(100% - var(--u)), calc(100% - var(--u)) 100%, var(--u) 100%, 0 calc(100% - var(--u)), 0 var(--u));
+}
+
+@media (max-width: 640px) {
+  body { font-size: 16px; padding-block: calc(4 * var(--u)) calc(10 * var(--u)); }
+  .sheet { padding: calc(6 * var(--u)) calc(4 * var(--u)) calc(6 * var(--u)) calc(8 * var(--u)); }
+  .sheet::before { left: calc(4 * var(--u)); }
+  .readout { margin-top: calc(-2 * var(--u)); }
+  h1 { font-size: 24px; }
+}
+@media print {
+  body, .sheet { background: #fff; }
+  body::before, .bevel, [data-theme-toggle] { display: none; }
+  .paper { filter: none; }
+  .sheet { clip-path: none; box-shadow: none; }
+  button.chip { display: none; }
+}

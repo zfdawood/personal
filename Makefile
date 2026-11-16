@@ -1,4 +1,4 @@
-.PHONY: gen check preview hooks install colors
+.PHONY: gen check preview hooks install colors export zed vscode
 
 # Regenerate every app's colors from tokens.toml.
 gen:
@@ -27,3 +27,33 @@ install: gen
 # tokens.toml. Day/night itself is switched from the settings menu, SUPER+comma.
 colors: gen
 	@./install.sh --colors-only
+
+# ── The brand outside the desktop ──────────────────────────────────────────
+# web/ and editors/ are generated with everything else by `make`. These copy
+# them to where they're used. Override a path on the command line, e.g.
+# `make zed ZED_THEMES=/mnt/c/Users/me/AppData/Roaming/Zed/themes`.
+BRAND_SKILL ?= $(HOME)/.claude/skills/personal-brand
+SITE        ?= $(HOME)/work/site
+ZED_THEMES  ?= $(HOME)/.config/zed/themes
+VSCODE_EXT  ?= $(HOME)/.vscode/extensions/zdawood.cozy-archive-theme-0.1.0
+
+# The brand skill (agendas and other pages) and the zdawood.dev site.
+export: gen
+	@test -d $(BRAND_SKILL) || { echo "no brand skill at $(BRAND_SKILL)"; exit 1; }
+	@mkdir -p $(BRAND_SKILL)/glyphs
+	@cp web/brand.css web/theme.js $(BRAND_SKILL)/
+	@cp web/glyphs/leaf.svg $(BRAND_SKILL)/glyphs/
+	@echo "brand skill: $(BRAND_SKILL)"
+	@if test -d $(SITE); then \
+		cp web/brand.css web/theme.js $(SITE)/public/ && cp web/Brand.elm $(SITE)/src/ && echo "site: $(SITE)"; \
+	else echo "no site at $(SITE), skipped"; fi
+
+zed: gen
+	@mkdir -p $(ZED_THEMES)
+	@cp editors/zed/cozy-archive.json $(ZED_THEMES)/
+	@echo "Zed: $(ZED_THEMES)/cozy-archive.json (theme selector: Cozy Archive Day / Night)"
+
+vscode: gen
+	@mkdir -p $(VSCODE_EXT)
+	@cp -r editors/vscode/. $(VSCODE_EXT)/
+	@echo "VS Code: $(VSCODE_EXT) (reload, then Preferences: Color Theme)"

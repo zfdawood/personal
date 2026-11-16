@@ -8,6 +8,10 @@ import Quickshell
 Singleton {
     // tokens.toml `mode`; Theme.darkMode follows it.
     readonly property bool darkMode: false
+    // [structure]: Theme.qml sizes everything in these.
+    readonly property int unit: 4
+    readonly property int cut: 2
+    readonly property int shadow: 1
     readonly property var light: ({
         bgPrimary:        "#F3E9D8",
         bgAlt:            "#E3D5B8",

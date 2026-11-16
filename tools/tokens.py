@@ -30,6 +30,13 @@ class Tokens:
     roles: Mapping[str, Colors]       # mode → role → hex
     terminal: Mapping[str, Colors]    # mode → kitty key → hex
     wallpaper: Mapping[str, Mapping[str, list[str]]]  # mode → material → ramp (hex, dark → light)
+    structure: Mapping[str, Any]      # unit, cut, shadow, bevel, page, desk_* (numbers and strings)
+    type: Mapping[str, str]           # web font stacks, plus google_fonts (a stylesheet URL)
+    web: Mapping[str, Colors]         # mode → brand.css role → hex
+    web_alpha: Mapping[str, Mapping[str, tuple[str, float]]]  # mode → role → (hex, alpha)
+    editor: Mapping[str, Colors]      # mode → editor UI role → hex
+    syntax: Mapping[str, Colors]      # mode → code color → hex
+    glyph: Mapping[str, list[str]]    # ramp name → hex list, dark → light
 
 
 class TokenError(ValueError):
@@ -85,6 +92,59 @@ def _ramps(raw: Mapping[str, Any], swatch: Colors) -> dict[str, dict[str, list[s
     return out
 
 
+def _alphas(raw: Mapping[str, Any], swatch: Colors) -> dict[str, dict[str, tuple[str, float]]]:
+    """[web_alpha.light] / [web_alpha.dark]: role → [swatch, alpha in (0, 1]]."""
+    table = raw.get("web_alpha", {})
+    if set(table) != set(MODES):
+        raise TokenError(f"web_alpha: expected exactly {' and '.join(MODES)}, got {sorted(table)}")
+    out: dict[str, dict[str, tuple[str, float]]] = {}
+    for mode in MODES:
+        out[mode] = {}
+        for key, pair in table[mode].items():
+            loc = f"web_alpha.{mode}.{key}"
+            ok = (isinstance(pair, list) and len(pair) == 2 and isinstance(pair[1], (int, float))
+                  and 0 < pair[1] <= 1)
+            if not ok:
+                raise TokenError(f"{loc}: expected [swatch, alpha] with 0 < alpha <= 1, got {pair!r}")
+            out[mode][key] = (_resolve({key: pair[0]}, swatch, loc)[key], float(pair[1]))
+    if out["light"].keys() != out["dark"].keys():
+        raise TokenError("web_alpha: light and dark must define the same keys")
+    return out
+
+
+def _glyph(raw: Mapping[str, Any], swatch: Colors) -> dict[str, list[str]]:
+    out: dict[str, list[str]] = {}
+    for name, names in raw.get("glyph", {}).items():
+        loc = f"glyph.{name}"
+        if not isinstance(names, list) or len(names) < 2:
+            raise TokenError(f"{loc}: expected a list of at least two swatch names")
+        out[name] = list(_resolve(dict(enumerate(names)), swatch, loc).values())
+    return out
+
+
+STRUCTURE_INTS = ("unit", "cut", "shadow", "bevel", "page", "desk_seed", "desk_scale")
+TYPE_KEYS = ("text", "head", "mono", "hand", "google_fonts")
+
+
+def _structure(raw: Mapping[str, Any]) -> dict[str, Any]:
+    table = dict(raw.get("structure", {}))
+    for key in STRUCTURE_INTS:
+        if not isinstance(table.get(key), int) or table[key] <= 0:
+            raise TokenError(f"structure.{key}: expected a positive integer, got {table.get(key)!r}")
+    size = table.get("desk_size")
+    if not (isinstance(size, str) and re.fullmatch(r"[1-9][0-9]*x[1-9][0-9]*", size)):
+        raise TokenError(f"structure.desk_size: expected \"WxH\", got {size!r}")
+    return table
+
+
+def _type(raw: Mapping[str, Any]) -> dict[str, str]:
+    table = raw.get("type", {})
+    for key in TYPE_KEYS:
+        if not isinstance(table.get(key), str) or not table[key]:
+            raise TokenError(f"type.{key}: expected a non-empty string")
+    return dict(table)
+
+
 def parse(text: str) -> Tokens:
     raw = tomllib.loads(text)
     mode = raw.get("mode")
@@ -97,6 +157,13 @@ def parse(text: str) -> Tokens:
         roles=_per_mode(raw, swatch, "roles"),
         terminal=_per_mode(raw, swatch, "terminal"),
         wallpaper=_ramps(raw, swatch),
+        structure=_structure(raw),
+        type=_type(raw),
+        web=_per_mode(raw, swatch, "web"),
+        web_alpha=_alphas(raw, swatch),
+        editor=_per_mode(raw, swatch, "editor"),
+        syntax=_per_mode(raw, swatch, "syntax"),
+        glyph=_glyph(raw, swatch),
     )
 
 

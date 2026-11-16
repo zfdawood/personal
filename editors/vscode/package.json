@@ -1,0 +1,27 @@
+{
+  "name": "cozy-archive-theme",
+  "displayName": "Cozy Archive",
+  "description": "Parchment on an oak desk, lit from the top left. GENERATED from tokens.toml by tools/gen.py. Edit tokens.toml (or templates/web/), then run `make`.",
+  "version": "0.1.0",
+  "publisher": "zdawood",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Themes"
+  ],
+  "contributes": {
+    "themes": [
+      {
+        "label": "Cozy Archive Day",
+        "uiTheme": "vs",
+        "path": "./themes/cozy-archive-day.json"
+      },
+      {
+        "label": "Cozy Archive Night",
+        "uiTheme": "vs-dark",
+        "path": "./themes/cozy-archive-night.json"
+      }
+    ]
+  }
+}

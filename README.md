@@ -76,6 +76,38 @@ kitty and mako all derive from it; no hex codes are hardcoded anywhere else.
 Generated files are committed, so `./install.sh` works on a fresh clone, and
 `make check` fails if they've drifted from the tokens.
 
+## The brand beyond the desktop
+
+The same `tokens.toml` also describes Z. Dawood's personal brand on the web and in
+editors. `make` writes these next to the desktop configs, `make check` holds them to the
+same rules (current with the tokens, and WCAG contrast for the web sheet, the editor UI
+and every code color), and the same tokens always give the same bytes.
+
+| Output | What |
+|---|---|
+| `web/brand.css` | Custom properties for day and night (colors, the bevel's eight faces, the desk as an inlined PNG, structure, type) + the hand-written `templates/web/components.css` |
+| `web/theme.js` | The day/night switch (`templates/web/theme.js`) |
+| `web/glyphs/leaf.svg` | The low-poly leaf, shaded from `[glyph]` ramps |
+| `web/Brand.elm` | The web palette for both modes and the leaf, for Elm sites |
+| `editors/zed/cozy-archive.json` | Zed theme family: Cozy Archive Day / Night |
+| `editors/vscode/` | VS Code theme extension: Cozy Archive Day / Night |
+
+What is computed rather than listed, so every output gets the same answer:
+- **The bevel**: each face is lit by how directly it faces the top-left light (Lambert's
+  cosine, as in `Card.qml`), mixed in OKLab between `lit` and `ruleShade`.
+- **The desk**: `tools/wallpaper.py` at `[structure] desk_seed` and `desk_size`, shown at `desk_scale`.
+- **The leaf**: each face has a light value; a value halfway between two ramp steps becomes a
+  2×2 dither of both, like the wallpaper.
+
+```sh
+make export   # brand.css, theme.js, leaf.svg → ~/.claude/skills/personal-brand; + Brand.elm → ~/work/site
+make zed      # → ~/.config/zed/themes (ZED_THEMES=… to change)
+make vscode   # → ~/.vscode/extensions/… (VSCODE_EXT=… to change)
+```
+
+Hand-written, and read only through generated variables: `templates/web/components.css`
+(the sheet, chips, ledger, fold-outs) and `templates/web/theme.js`.
+
 ## Dependencies
 
 Hyprland (≥0.57, which reads only the Lua config), Quickshell (>0.3.0),

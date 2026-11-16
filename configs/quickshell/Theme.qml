@@ -20,14 +20,14 @@ Singleton {
     // Every size below is a whole number of units, and the gaps match
     // Hyprland's (gaps_out = 8, two windows sit 8 apart), so the bar and the
     // windows share one grid. Change `unit` and everything scales together.
-    readonly property int unit: 4
+    readonly property int unit: Tokens.unit                 // tokens.toml [structure]
     readonly property int gap:          2 * unit   // between any two papers; bar ↔ screen edge
-    readonly property int shadowOffset: unit       // hard shadow, down-right (= Hyprland's)
+    readonly property int shadowOffset: Tokens.shadow * unit  // hard shadow, down-right (= Hyprland's)
     readonly property int barHeight:    7 * unit   // the bar card, border included
     readonly property int padX:         3 * unit   // inside the bar card, left/right
     readonly property int groupGap:     6 * unit   // between meters
     readonly property int labelGap:     2 * unit   // label → its meter
-    readonly property int chamfer:      2 * unit   // cut corners (= Hyprland's rounding 8, power 1)
+    readonly property int chamfer:      Tokens.cut * unit  // cut corners (= Hyprland's rounding 8, power 1)
 
     // Borders: the same 2px as Hyprland's windows; 1px only for recesses.
     readonly property int borderWidth: 2

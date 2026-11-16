@@ -77,6 +77,14 @@ mauve_glow_bright  = "#CCB0B0"
 teal_glow          = "#89A19B"
 teal_glow_bright   = "#A6BBB5"
 
+# Brand inks, from the printed handout (the web pages' accents). `_glow` is the
+# night version, lightened to read on umber.
+gel        = "#5A3D94"   # purple: numbers, dates, asks, quotes
+gel_glow   = "#BBA5E8"
+pink       = "#AD3A6C"   # marks, links, focus
+pink_glow  = "#E58BB0"
+hl         = "#E280A6"   # the highlighter, used at 24%
+
 # ── Roles: "day archive" ────────────────────────────────────────────────────
 [roles.light]
 bgPrimary     = "parchment"
@@ -209,3 +217,145 @@ stem  = ["teal_ink", "moss_ink", "moss_ink_bright"]
 leaf  = ["umber_line", "teal_ink", "moss_ink", "moss"]
 berry = ["rose_ink", "mauve_ink", "amber_ink"]
 nail  = ["black", "umber_line", "leather"]
+
+# ── Structure: shared by the desktop and the web ───────────────────────────
+# Everything on screen is sized in whole units. Tokens.qml carries unit and cut
+# to Theme.qml; brand.css carries all of these to the web.
+[structure]
+unit       = 4        # px. The one spacing unit
+cut        = 2        # units. Corners are cut at 45°, this far in
+shadow     = 1        # units. The hard shadow, down-right, no blur
+bevel      = 3        # px. Width of the web sheet's flat-shaded bevel
+page       = 1200     # px. The widest a web sheet gets
+desk_seed  = 7        # wallpaper seed for the web desk
+desk_size  = "320x200"
+desk_scale = 4        # the desk is shown at exactly this scale: one pixel = one unit
+
+# ── Type (web) ──────────────────────────────────────────────────────────────
+# Only top-level headings are mono; dates and item numbers are pencilled in.
+[type]
+text = '"Newsreader", "Iowan Old Style", Charter, Georgia, serif'
+head = '"Archivo", "Arial Narrow", system-ui, sans-serif'
+mono = '"JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace'
+hand = '"Kalam", "Segoe Print", "Bradley Hand", cursive'
+google_fonts = "https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&display=swap"
+
+# ── Web: a sheet of paper on the desk ───────────────────────────────────────
+# brand.css's custom properties (camelCase here, kebab-case there). The bevel's
+# eight faces are computed from `lit` and `ruleShade` by the same Lambert rule
+# as Card.qml, so they are not listed.
+[web.light]
+desk      = "oak"
+shadow    = "oak_shade"
+sheet     = "parchment"
+recess    = "parchment_deep"  # chips, wells, the footer label
+lit       = "parchment_hi"    # the bevel's lit end
+rule      = "straw"
+ruleShade = "straw_shade"     # the bevel's shaded end, chip edges
+ink       = "umber"
+muted     = "walnut"
+faint     = "leather_ink"
+gel       = "gel"
+pink      = "pink"
+good      = "moss_ink"
+
+[web.dark]
+desk      = "ebony"
+shadow    = "black"
+sheet     = "umber"
+recess    = "umber_deep"
+lit       = "umber_mid"
+rule      = "umber_line"
+ruleShade = "umber_deep"      # not borderShade: the web bevel needs a step below umber_mid
+ink       = "parchment"
+muted     = "straw"
+faint     = "leather_glow"
+gel       = "gel_glow"
+pink      = "pink_glow"
+good      = "moss_glow"         # moss alone is 4.2:1 on umber; text needs 4.5
+
+# Translucent web colors: [swatch, alpha].
+[web_alpha.light]
+hl     = ["hl", 0.24]         # the highlighter swipe
+margin = ["pink", 0.45]       # the margin rule
+
+[web_alpha.dark]
+hl     = ["pink_glow", 0.20]
+margin = ["pink_glow", 0.35]
+
+# ── Editors (Zed, VS Code) ──────────────────────────────────────────────────
+[editor.light]
+background    = "parchment"
+surface       = "parchment_deep"   # sidebars, panels, tabs
+chrome        = "vellum"           # title and status bars
+border        = "straw"
+text          = "umber"
+textMuted     = "walnut"
+textFaint     = "leather_ink"      # line numbers, placeholders
+accent        = "pink"             # focus borders, links
+accentSolid   = "gel"              # buttons, badges, the active tab's mark…
+onAccentSolid = "parchment"        # …and the text on them
+selection     = "vellum"
+lineHighlight = "parchment_hi"
+cursor        = "amber_ink"
+error         = "rose_ink"
+warning       = "amber_ink"
+success       = "moss_ink"
+info          = "slate_ink"
+
+[editor.dark]
+background    = "umber"
+surface       = "umber_deep"
+chrome        = "umber_deep"
+border        = "umber_line"
+text          = "parchment"
+textMuted     = "straw"
+textFaint     = "leather_glow"
+accent        = "pink_glow"
+accentSolid   = "gel_glow"
+onAccentSolid = "umber"
+selection     = "umber_line"
+lineHighlight = "umber_mid"
+cursor        = "amber"
+error         = "rose_glow"
+warning       = "amber_glow"
+success       = "moss_glow"
+info          = "slate_glow"
+
+# Code colors, as text on editor.background. The brand's purple is the keyword.
+[syntax.light]
+comment     = "leather_ink"
+keyword     = "gel"
+string      = "moss_ink"
+number      = "amber_ink"
+constant    = "amber_ink"
+function    = "slate_ink"
+type        = "teal_ink"
+tag         = "rose_ink"
+attribute   = "amber_ink_bright"
+property    = "mauve_ink"
+variable    = "umber"
+operator    = "walnut"
+punctuation = "walnut"
+
+[syntax.dark]
+comment     = "leather_glow"
+keyword     = "gel_glow"
+string      = "moss_glow"
+number      = "amber_glow"
+constant    = "amber_glow"
+function    = "slate_glow"
+type        = "teal_glow"
+tag         = "rose_glow"
+attribute   = "amber_glow_bright"
+property    = "mauve_glow"
+variable    = "parchment"
+operator    = "straw"
+punctuation = "straw"
+
+# ── Glyphs ──────────────────────────────────────────────────────────────────
+# Ramps for the low-poly glyphs, darkest → lightest (the wallpaper's greens).
+# One set for both modes: the mid-tone greens read on parchment and on umber.
+[glyph]
+leaf = ["moss_ink", "moss_ink_bright", "moss", "moss_glow", "moss_glow_bright"]
+stem = ["moss_ink", "moss_ink_bright", "moss"]
