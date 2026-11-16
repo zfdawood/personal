@@ -22,14 +22,16 @@ npm start       # build, then serve dist/ at http://localhost:8000 (deep links f
 
 To add a page: add a `Route`, a parser line in `routeParser`, and a case in `view`.
 
-## Cloudflare Pages (one time, in the dashboard)
+## Cloudflare (one time, in the dashboard)
 
-1. Workers & Pages → Create → Pages → **Connect to Git** → pick `zfdawood/site`.
-2. Build settings: framework preset **None**, build command `npm run build`, output directory `dist`.
-   Add the environment variable `NODE_VERSION` = `22`.
-3. Save and deploy. Each push to `main` deploys production, and other branches get preview URLs.
-4. Custom domains → add `zdawood.dev` (and `www.zdawood.dev` if wanted). If the domain's DNS is on
-   Cloudflare, the records are created for you.
+The site deploys as a Worker with static assets. `wrangler.jsonc` says what to upload (`dist/`) and
+that unknown paths get `index.html`, so Elm's router handles deep links and shows its own not-found page.
 
-There is deliberately no `404.html`: without one, Pages serves `index.html` for unknown paths, so
-Elm's router handles deep links and shows its own not-found page.
+1. Workers & Pages → Create → **Import a repository** → pick `zfdawood/site`.
+2. Project name `site` (it must match `name` in `wrangler.jsonc`).
+   Build command `npm run build`. Deploy command `npx wrangler deploy` (the default).
+3. Deploy. Each push to `main` redeploys.
+4. The Worker's Settings → Domains & Routes → add the custom domain `zdawood.dev` (and
+   `www.zdawood.dev` if wanted). If the domain's DNS is on Cloudflare, the records are created for you.
+
+To check the config locally without deploying: `npm run build && npx wrangler deploy --dry-run`.
