@@ -33,6 +33,7 @@ that unknown paths get `index.html`, so Elm's router handles deep links and show
 2. Project name `site` (it must match `name` in `wrangler.jsonc`). **Root directory `site`.**
    Build command `npm run build`. Deploy command `npx wrangler deploy` (the default).
    Cloudflare still clones the whole repo, so the build can read `../web`.
+   Node's version comes from `.node-version` here, so there's no `NODE_VERSION` variable to set.
 3. Deploy. Each push to `main` redeploys.
 4. The Worker's Settings → Domains & Routes → add the custom domain `zdawood.dev` (and
    `www.zdawood.dev` if wanted). If the domain's DNS is on Cloudflare, the records are created for you.
