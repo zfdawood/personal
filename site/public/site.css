@@ -1,0 +1,51 @@
+/* The site's own layout, on top of brand.css (a copy of ~/.claude/skills/personal-brand/brand.css). */
+:root { --page: 1000px; }
+section { margin-top: calc(12 * var(--u)); }
+section > p { max-width: 72ch; }
+h2 { margin-bottom: calc(3 * var(--u)); }
+
+/* Links under the name */
+ul.links { display: flex; flex-wrap: wrap; gap: calc(2 * var(--u)); list-style: none; padding: 0; margin: calc(4 * var(--u)) 0 0; }
+
+/* The desk, at whole-number scale with hard pixels */
+figure.desk { margin: 0; }
+/* The same --desk-img the page sits on, so it follows the day/night switch. */
+figure.desk .deskview { width: 100%; aspect-ratio: 8 / 5; background: var(--desk-img) 0 0 / 1280px 800px; image-rendering: pixelated; border: 1px solid var(--rule-shade); }
+figure.desk figcaption { margin-top: calc(3 * var(--u)); max-width: 72ch; color: var(--muted); font-size: 15.5px; font-style: italic; }
+
+/* Palette */
+ul.swatches { list-style: none; padding: 0; margin: calc(4 * var(--u)) 0 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: calc(5 * var(--u)) calc(4 * var(--u)); }
+.swatch { display: grid; gap: var(--u); min-width: 0; }
+.chipcolor { display: grid; grid-template-columns: 1fr 1fr; height: calc(14 * var(--u)); margin-bottom: var(--u);
+  clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut));
+  box-shadow: inset 0 0 0 1px var(--rule-shade); }
+.chipcolor span { display: block; }
+.sname { font: 700 13px var(--mono); }
+.shex { font: 400 11px var(--mono); color: var(--faint); }
+.sfor { font-size: 14.5px; color: var(--muted); line-height: 1.35; }
+
+/* Type */
+.faces { display: grid; gap: 0; }
+.face { display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr); gap: calc(4 * var(--u)); align-items: baseline; padding: calc(3 * var(--u)) 0; border-bottom: 1px solid var(--rule); }
+.fmeta { font: 600 11px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.face.mono .fsample { font: 700 24px var(--mono); }
+.face.text .fsample { font: italic 400 24px var(--text); }
+.face.hand .fsample { font: 400 26px var(--hand); color: var(--gel); }
+.face.head .fsample { font: 700 24px var(--head); font-variation-settings: "wdth" 104; }
+
+/* Pieces */
+details.fold { border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); margin: calc(5 * var(--u)) 0; max-width: 72ch; }
+details.fold summary { display: flex; gap: calc(2 * var(--u)); align-items: baseline; padding: calc(3 * var(--u)) 0; }
+details.fold .ftopic { font: 700 15px var(--mono); }
+details.fold p { margin: 0 0 calc(3 * var(--u)) calc(6 * var(--u)); }
+.glyphrow { display: flex; gap: calc(4 * var(--u)); align-items: center; margin-top: calc(5 * var(--u)); }
+.glyphrow .from { margin: 0; }
+ul.rules { max-width: 72ch; padding-left: calc(5 * var(--u)); }
+ul.rules li { margin: calc(2 * var(--u)) 0; }
+ul.rules li::marker { color: var(--faint); }
+
+@media (max-width: 760px) {
+  ul.swatches { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .face { grid-template-columns: minmax(0, 1fr); gap: var(--u); }
+  .face .fsample { font-size: 21px !important; }
+}
