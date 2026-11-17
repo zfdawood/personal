@@ -1,4 +1,4 @@
-.PHONY: gen check preview hooks install colors export zed vscode
+.PHONY: gen check preview hooks install colors site skills zed vscode
 
 # Regenerate every app's colors from tokens.toml.
 gen:
@@ -29,24 +29,25 @@ colors: gen
 	@./install.sh --colors-only
 
 # ── The brand outside the desktop ──────────────────────────────────────────
-# web/ and editors/ are generated with everything else by `make`. These copy
-# them to where they're used. Override a path on the command line, e.g.
+# web/ is generated with everything else by `make` and read in place: the site
+# (site/) builds from it and the skills (skills/) point at it, so nothing is
+# copied. The editor themes do need installing into each editor. Override a
+# path on the command line, e.g.
 # `make zed ZED_THEMES=/mnt/c/Users/me/AppData/Roaming/Zed/themes`.
-BRAND_SKILL ?= $(HOME)/.claude/skills/personal-brand
-SITE        ?= $(HOME)/work/site
 ZED_THEMES  ?= $(HOME)/.config/zed/themes
 VSCODE_EXT  ?= $(HOME)/.vscode/extensions/zdawood.cozy-archive-theme-0.1.0
+SKILLS      ?= $(HOME)/.claude/skills
 
-# The brand skill (agendas and other pages) and the zdawood.dev site.
-export: gen
-	@test -d $(BRAND_SKILL) || { echo "no brand skill at $(BRAND_SKILL)"; exit 1; }
-	@mkdir -p $(BRAND_SKILL)/glyphs
-	@cp web/brand.css web/theme.js $(BRAND_SKILL)/
-	@cp web/glyphs/leaf.svg $(BRAND_SKILL)/glyphs/
-	@echo "brand skill: $(BRAND_SKILL)"
-	@if test -d $(SITE); then \
-		cp web/brand.css web/theme.js $(SITE)/public/ && cp web/Brand.elm $(SITE)/src/ && echo "site: $(SITE)"; \
-	else echo "no site at $(SITE), skipped"; fi
+# Build zdawood.dev into site/dist and serve it at http://localhost:8000.
+site: gen
+	@cd site && { test -d node_modules || npm ci; } && npm start
+
+# Link the Claude Code skills (personal-brand, written-agenda) into ~/.claude/skills.
+skills:
+	@mkdir -p $(SKILLS)
+	@for s in skills/*/; do s=$${s%/}; n=$${s#skills/}; \
+		if test -e $(SKILLS)/$$n && ! test -L $(SKILLS)/$$n; then echo "$(SKILLS)/$$n exists and isn't a link, skipped"; \
+		else ln -sfn "$(CURDIR)/$$s" $(SKILLS)/$$n && echo "skill: $(SKILLS)/$$n -> $$s"; fi; done
 
 zed: gen
 	@mkdir -p $(ZED_THEMES)

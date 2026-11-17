@@ -1,3 +1,18 @@
+# personal
+
+Everything that wears Z. Dawood's look, from one `tokens.toml`:
+
+| Path | What |
+|---|---|
+| `configs/`, `tools/`, `templates/` | **Cozy Archive**, the Hyprland + Quickshell desktop (below) |
+| `web/` | The brand for web pages, GENERATED: `brand.css`, `theme.js`, `Brand.elm`, glyphs |
+| `editors/` | Zed and VS Code themes, GENERATED |
+| `site/` | zdawood.dev: Elm, built from `web/`, deployed by Cloudflare ([site/README.md](site/README.md)) |
+| `skills/` | Claude Code skills: `personal-brand` (the brand's rules) and `written-agenda` |
+
+Nothing generated is copied by hand: the site and the skills read `web/` in place, so a change to
+`tokens.toml` reaches all of them with `make`. `make check` keeps them current and readable.
+
 # Warm Terminal / Cozy Archive
 
 A Hyprland + Quickshell desktop theme: Signalis-style retro-terminal UI bones
@@ -99,8 +114,12 @@ What is computed rather than listed, so every output gets the same answer:
 - **The leaf**: each face has a light value; a value halfway between two ramp steps becomes a
   2×2 dither of both, like the wallpaper.
 
+Who reads them, in place: `site/` (its build copies `web/` into `dist/`, and `elm.json` lists
+`../web`) and `skills/` (the agenda renderer inlines `web/brand.css`).
+
 ```sh
-make export   # brand.css, theme.js, leaf.svg → ~/.claude/skills/personal-brand; + Brand.elm → ~/work/site
+make site     # build zdawood.dev and serve it at http://localhost:8000
+make skills   # link skills/* into ~/.claude/skills (SKILLS=… to change)
 make zed      # → ~/.config/zed/themes (ZED_THEMES=… to change)
 make vscode   # → ~/.vscode/extensions/… (VSCODE_EXT=… to change)
 ```

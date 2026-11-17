@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brand Specimen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=JetBrains+Mono:wght@400;600;700&family=Kalam:wght@400;700&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&display=swap" rel="stylesheet">
+<style>
+{{BRAND_CSS}}
+
+/* ── Specimen only ──────────────────────────────────────────────────────── */
+:root { --desk-img: url("{{DESK_LIGHT}}"); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --desk-img: url("{{DESK_DARK}}"); } }
+:root[data-theme="dark"] { --desk-img: url("{{DESK_DARK}}"); }
+
+.intro p { max-width: 80ch; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: calc(8 * var(--u)); margin-top: calc(8 * var(--u)); }
+.grid .wide { grid-column: 1 / -1; }
+.spec { min-width: 0; }
+.spec h2 { display: flex; gap: calc(3 * var(--u)); align-items: baseline; }
+.spec h2 .id { font: 700 24px/1 var(--hand); color: var(--gel); }
+.spec .cap { margin: calc(2 * var(--u)) 0 0; color: var(--muted); font-size: 15.5px; max-width: 72ch; }
+.spec .cap b { color: var(--ink); }
+
+/* Each specimen sits on its own patch of desk. */
+.tile { padding: calc(8 * var(--u)) calc(9 * var(--u)) calc(10 * var(--u)) calc(7 * var(--u)); background: var(--desk); border: 1px solid var(--rule-shade); }
+.tile.realdesk { background: var(--desk-img) 0 0 / 1280px 800px repeat; image-rendering: pixelated; }
+
+/* The sample sheet */
+.stack { position: relative; }
+.mini { position: relative; background: var(--sheet); padding: calc(6 * var(--u)) calc(6 * var(--u)) calc(5 * var(--u)) calc(11 * var(--u));
+  clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut)); }
+.mini::before { content: ""; position: absolute; top: 0; bottom: 0; left: calc(6 * var(--u)); border-left: 1px solid var(--margin); }
+.mini h1 { font-size: 22px; }
+.mini .rows { margin-top: calc(4 * var(--u)); border-top: 2px solid var(--ink); }
+.mini .row { display: grid; grid-template-columns: calc(7 * var(--u)) minmax(0, 1fr) auto; gap: calc(3 * var(--u)); align-items: baseline; padding: calc(2.5 * var(--u)) 0; border-bottom: 1px solid var(--rule); font-size: 16px; }
+.mini .row .n { font: 700 19px/1 var(--hand); color: var(--gel); text-align: right; }
+.mini .row .topic { font: 700 14px/1.3 var(--mono); }
+
+/* A: today. Solid hard shadow, two inset edge lines. */
+.s-current { filter: drop-shadow(var(--u) var(--u) 0 var(--shadow)); }
+.s-current .mini { box-shadow: inset 2px 2px 0 var(--lit), inset -2px -2px 0 var(--rule-shade); }
+
+/* C: dithered shadow. A 2px checker of --shadow, two units down-right. */
+.dshadow { position: absolute; inset: 0; transform: translate(calc(2 * var(--u)), calc(2 * var(--u)));
+  background: repeating-conic-gradient(var(--shadow) 0 25%, transparent 0 50%) 0 0 / 4px 4px;
+  clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut)); }
+
+/* D: flat-shaded bevel. Eight faces, each lit by how directly it faces the top-left light
+   (cozy-archive Card.qml: Lambert's cosine mapped to [0,1], mixing --rule-shade to --lit). */
+.bevel { --b: 3px; --k: calc(var(--cut) + 1.25px); position: absolute; inset: 0; pointer-events: none; }
+.bevel i { position: absolute; inset: 0; }
+.bevel .f0 { background: color-mix(in oklab, var(--lit) 85%, var(--rule-shade)); clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, calc(100% - var(--k)) var(--b), var(--k) var(--b)); }
+.bevel .f1 { background: color-mix(in oklab, var(--lit) 50%, var(--rule-shade)); clip-path: polygon(calc(100% - var(--cut)) 0, 100% var(--cut), calc(100% - var(--b)) var(--k), calc(100% - var(--k)) var(--b)); }
+.bevel .f2 { background: color-mix(in oklab, var(--lit) 15%, var(--rule-shade)); clip-path: polygon(100% var(--cut), 100% calc(100% - var(--cut)), calc(100% - var(--b)) calc(100% - var(--k)), calc(100% - var(--b)) var(--k)); }
+.bevel .f3 { background: var(--rule-shade); clip-path: polygon(100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, calc(100% - var(--k)) calc(100% - var(--b)), calc(100% - var(--b)) calc(100% - var(--k))); }
+.bevel .f4 { background: color-mix(in oklab, var(--lit) 15%, var(--rule-shade)); clip-path: polygon(calc(100% - var(--cut)) 100%, var(--cut) 100%, var(--k) calc(100% - var(--b)), calc(100% - var(--k)) calc(100% - var(--b))); }
+.bevel .f5 { background: color-mix(in oklab, var(--lit) 50%, var(--rule-shade)); clip-path: polygon(var(--cut) 100%, 0 calc(100% - var(--cut)), var(--b) calc(100% - var(--k)), var(--k) calc(100% - var(--b))); }
+.bevel .f6 { background: color-mix(in oklab, var(--lit) 85%, var(--rule-shade)); clip-path: polygon(0 calc(100% - var(--cut)), 0 var(--cut), var(--b) var(--k), var(--b) calc(100% - var(--k))); }
+.bevel .f7 { background: var(--lit); clip-path: polygon(0 var(--cut), var(--cut) 0, var(--k) var(--b), var(--b) var(--k)); }
+.s-bevel { filter: drop-shadow(var(--u) var(--u) 0 var(--shadow)); }
+
+/* E: file header strip */
+.readout { display: flex; flex-wrap: wrap; gap: 0 calc(2 * var(--u)); margin: calc(-2 * var(--u)) 0 calc(4 * var(--u)); padding-bottom: calc(1.5 * var(--u)); border-bottom: 1px dashed var(--rule); font: 600 10px/1.6 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--faint); }
+.readout b { color: var(--gel); font-weight: 600; }
+
+/* Small things */
+.smalls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: calc(6 * var(--u)); }
+.small { min-width: 0; }
+.small h4 { margin-top: 0; }
+.tags { display: flex; flex-wrap: wrap; gap: calc(2 * var(--u)); }
+.tag { font: 600 11px/1 var(--mono); letter-spacing: .06em; padding: calc(1.5 * var(--u)) calc(2 * var(--u)); background: var(--recess);
+  clip-path: polygon(var(--u) 0, calc(100% - var(--u)) 0, 100% var(--u), 100% calc(100% - var(--u)), calc(100% - var(--u)) 100%, var(--u) 100%, 0 calc(100% - var(--u)), 0 var(--u));
+  box-shadow: inset 1px 1px 0 var(--lit), inset -1px -1px 0 var(--rule-shade); white-space: pre; }
+.tag.ask { color: var(--gel); } .tag.done { color: var(--good); } .tag.parked { color: var(--faint); }
+.steps-demo summary { display: flex; gap: calc(2 * var(--u)); align-items: baseline; padding: calc(2 * var(--u)) 0; border-bottom: 1px solid var(--rule); }
+.steps-demo summary .topic { font: 700 14px var(--mono); }
+.steps-demo .body { padding: calc(2 * var(--u)) 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .steps-demo[open] .body { animation: snap .2s steps(3, end); }
+  .steps-demo.eased[open] .body { animation: unfold .2s ease-out; }
+}
+@keyframes snap { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+@keyframes unfold { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+.cursor ::selection, .cursor::selection { background: var(--ink); color: var(--sheet); }
+.cursor-btn:focus-visible { outline: 0; background: var(--ink); color: var(--sheet); box-shadow: none; }
+.scan { position: relative; padding: calc(4 * var(--u)); background: var(--recess); }
+.scan::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(to bottom, rgb(0 0 0 / .06) 0 1px, transparent 1px 3px); }
+.glyph { display: block; width: calc(24 * var(--u)); height: auto; image-rendering: pixelated; }
+
+@media (max-width: 760px) {
+  .grid, .smalls { grid-template-columns: minmax(0, 1fr); }
+  .tile { padding: calc(5 * var(--u)) calc(6 * var(--u)) calc(7 * var(--u)) calc(4 * var(--u)); }
+}
+</style>
+</head>
+<body>
+<div class="paper"><article class="sheet">
+  <div class="intro">
+    <p class="kicker">Personal brand · specimen</p>
+    <h1>getting closer</h1>
+    <div class="byline"><span class="when">Mon 11/16</span><span>Z. Dawood</span></div>
+    <p class="lede">The same small sheet under each of the four main ideas, then all four together, then the smaller ones. Tell me by letter what to keep. Try it in dark mode too.</p>
+  </div>
+
+  <div class="grid">
+    {{SPECIMENS}}
+  </div>
+
+  <h2 style="margin-top: calc(12 * var(--u))">the small ones</h2>
+  <div class="smalls" style="margin-top: calc(4 * var(--u))">
+    <div class="small">
+      <h4>F · bracketed status tags</h4>
+      <div class="tags"><span class="tag ask">[ ASK ]</span><span class="tag">[ OPEN ]</span><span class="tag done">[ DECIDED ]</span><span class="tag parked">[ PARKED ]</span></div>
+    </div>
+    <div class="small">
+      <h4>G · stepped motion (open both)</h4>
+      <details class="steps-demo"><summary><span class="mark"></span><span class="topic">steps(3)</span></summary><div class="body">Snaps in over three frames.</div></details>
+      <details class="steps-demo eased"><summary><span class="mark"></span><span class="topic">ease-out (today)</span></summary><div class="body">Glides in.</div></details>
+    </div>
+    <div class="small">
+      <h4>H · a TUI cursor (select text, tab to the button)</h4>
+      <p class="cursor">Selected text turns into an inverted block, like a terminal cursor.</p>
+      <button class="chip cursor-btn" type="button">Focus me</button>
+    </div>
+    <div class="small">
+      <h4>I · scanlines, opt-in only</h4>
+      <div class="scan"><p class="kicker" style="margin:0">404 / record not found</p></div>
+    </div>
+    <div class="small">
+      <h4>J · a low-poly glyph (for the website)</h4>
+      {{GLYPH}}
+    </div>
+    <div class="small">
+      <h4>K · Departure Mono at 11px</h4>
+      <p class="from" style="margin-top:0">Not shown: it isn't on Google Fonts or installed here. Drop the .otf in ~/.local/share/fonts and I'll inline it.</p>
+    </div>
+  </div>
+</article></div>
+<footer>Desk drawn by cozy-archive's tools/wallpaper.py, seed 7, 320×200 at 4×.</footer>
+</body>
+</html>

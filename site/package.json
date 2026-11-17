@@ -1,7 +1,7 @@
 {
   "name": "zdawood-dev",
   "private": true,
-  "description": "zdawood.dev: a static Elm site, built by Cloudflare Pages on every push",
+  "description": "zdawood.dev: a static Elm site, built by Cloudflare Workers Builds on every push to main",
   "scripts": {
     "build": "bash scripts/build.sh",
     "start": "npm run build && node scripts/serve.mjs"
