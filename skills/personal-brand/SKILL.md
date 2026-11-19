@@ -101,8 +101,9 @@ sheet).
 - Both modes always: the tokens already switch for `prefers-color-scheme` and `data-theme`.
 - A page meant to be opened locally is a full HTML document (`<!doctype html>`, `<html lang="en">`,
   head with charset and viewport). Write it to a file. Don't publish it as an artifact unless he asks.
-- His name on any page is **Z. Dawood** (`z. dawood` in a lowercase mono heading), never
-  "Zachariah". He said on 11/16 that the first name is subject to change.
+- His name: **Z. Dawood** (`z. dawood` in a lowercase mono heading) on personal and branding
+  pages (site, agendas, CV, handouts, specimen). On **client work**, even in this brand, it's
+  **Zachariah**: "Z. Dawood" a million times on a page reads awkwardly (11/19).
 - No emoji, no rounded corners, no blurred shadows, no gradients except the highlighter.
 - Copy on the page follows his writing style
   (`~/.claude/projects/-home-zfdawood-work-chr-eyeonit/memory/dawood-writing-style.md`): plain, short,
@@ -171,3 +172,5 @@ One dated line per correction. Fold patterns into the rules and tokens above, th
   local HTML files, not published artifacts.
 - 2026-11-17: everything moved into one repo, `zfdawood/personal` (was cozy-archive): the skills,
   the site and the tokens. Generated files are read in place, never copied (`make export` is gone).
+- 2026-11-19: client work uses "Zachariah", personal/branding pages keep "Z. Dawood". First used on
+  the TLH tester guide and walkthrough for Potomac (business variant, local files).
