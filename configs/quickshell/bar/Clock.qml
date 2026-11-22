@@ -6,9 +6,10 @@ import ".."
 // "Saturday, November 14th at 5:10 pm" (or "… at 17:10" with Theme.clock24h).
 Text {
     id: clock
-    color: Theme.textPrimary
-    font.family: Theme.fontFamily
-    font.pixelSize: Theme.fontSize
+    // Pencilled in, like the dates on the web pages.
+    color: Theme.pencil
+    font.family: Theme.handFamily
+    font.pixelSize: Theme.handSize
     text: {
         const d = sysClock.date
         const day = d.getDate()

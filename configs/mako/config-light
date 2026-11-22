@@ -6,12 +6,13 @@
 # Square, thick-bordered "instrument readout" toasts, on the same 8px grid as
 # the bar and windows (mako sits below the bar's reserved strip).
 # mako has no include directive, so this whole file is a template; ${role}
-# placeholders are filled from tokens.toml [roles.<mode>].
+# placeholders are filled from tokens.toml [roles.<mode>], and ${fontText}
+# from [type] text (the brand's reading serif).
 
-font=Departure Mono 10
+font=Newsreader 12
 background-color=#F3E9D8
 text-color=#2B2420
-border-color=#C97B3D
+border-color=#5A3D94
 progress-color=over #E3D5B8
 
 border-size=2
@@ -31,7 +32,7 @@ border-color=#7C8B6F
 text-color=#5C4A2E
 
 [urgency=normal]
-border-color=#C97B3D
+border-color=#5A3D94
 
 [urgency=critical]
 border-color=#B5654F

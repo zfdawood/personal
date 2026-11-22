@@ -16,28 +16,14 @@ trap 'rm -rf "$tmp"' EXIT
 # ── 1. Packages (Quickshell is in [extra] now; no AUR build needed) ───────
 c "Updating + installing packages (needs sudo)…"
 sudo pacman -Syu --needed --noconfirm \
-    hyprland quickshell kitty mako python \
+    hyprland quickshell kitty mako python nautilus \
     git jq socat \
     qt6-base qt6-declarative qt6-svg qt6-wayland \
     ttf-jetbrains-mono noto-fonts wireplumber
 
-# ── 2. Departure Mono (SIL OFL; not packaged in Arch) ──────────────────────
-# Before the deploy, so install.sh finds it and copies it into Quickshell.
-FONTDIR="${XDG_DATA_HOME:-$HOME/.local/share}/fonts"
-if [[ ! -f "$FONTDIR/DepartureMono-Regular.otf" ]]; then
-    c "Fetching Departure Mono…"
-    DM_URL=https://github.com/rektdeckard/departure-mono/releases/download/v1.500/DepartureMono-1.500.zip
-    DM_SHA256=bf3e48059aeef4617ec585bdea81dcc3491c576b3e7a472f52faf40e09ee5c3a
-    curl -fL -o "$tmp/dm.zip" "$DM_URL"
-    echo "$DM_SHA256  $tmp/dm.zip" | sha256sum -c --quiet
-    mkdir -p "$FONTDIR"
-    # bsdtar ships with pacman (libarchive), so no unzip needed.
-    bsdtar -xOf "$tmp/dm.zip" DepartureMono-1.500/DepartureMono-Regular.otf \
-        > "$FONTDIR/DepartureMono-Regular.otf"
-    fc-cache -f "$FONTDIR"
-else
-    c "Departure Mono already installed."
-fi
+# ── 2. Fonts ──────────────────────────────────────────────────────────────
+# install.sh fetches the brand's faces (tokens.toml [type]) itself, skipping
+# any that are already installed (ttf-jetbrains-mono above covers the mono).
 
 # ── 3. Fetch + deploy the theme ─────────────────────────────────────────────
 if [[ -n "$THEME_URL" ]]; then
@@ -59,5 +45,6 @@ cat <<'EOF'
   │      start-hyprland                                    │
   │  SUPER+Return = kitty      SUPER+Space = launcher      │
   │  SUPER+comma = settings    SUPER+Q = close window      │
+  │  SUPER+E = files (nautilus)                            │
   └────────────────────────────────────────────────────────┘
 EOF

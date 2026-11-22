@@ -9,7 +9,7 @@
 #   [terminal.*]    kitty chrome + the 16 ANSI colors
 # Each of roles/terminal has a light and a dark set; every app ships both, and
 # the settings menu (SUPER+comma) switches between them at runtime. `mode` is
-# only the default for a fresh install. Values below the swatch layer are
+# applied on every `make install` / `make colors`, overriding the menu's choice. Values below the swatch layer are
 # swatch names; a literal "#RRGGBB" also works.
 
 # ── Default mode ────────────────────────────────────────────────────────────
@@ -82,7 +82,9 @@ teal_glow_bright   = "#A6BBB5"
 gel        = "#5A3D94"   # purple: numbers, dates, asks, quotes
 gel_glow   = "#BBA5E8"
 pink       = "#AD3A6C"   # marks, links, focus
+pink_ink   = "#8A2D56"   # pink deepened: the focused edge's shaded side
 pink_glow  = "#E58BB0"
+pink_dusk  = "#BF4A7E"   # between pink and pink_glow: night's shaded focus edge (3.3:1 on umber)
 hl         = "#E280A6"   # the highlighter, used at 24%
 
 # ── Roles: "day archive" ────────────────────────────────────────────────────
@@ -94,19 +96,20 @@ borderStrong  = "leather"          # inactive window borders (Hyprland)
 textPrimary   = "umber"
 textSecondary = "walnut"           # labels
 textTertiary  = "leather"          # inactive states only (not checked as text)
-accent        = "amber"            # fills: meters, focus borders
+accent        = "gel"              # fills: meters (the web's purple ink)
 warning       = "rose"
 good          = "moss"
 media         = "rose"             # volume meter
-accentSolid   = "amber_ink"        # a filled accent surface that carries text…
+accentSolid   = "gel"              # a filled accent surface that carries text…
 onAccentSolid = "parchment"        # …and the text on it
 scanline      = "black"
 desk          = "oak"              # desktop background: papers lie on it
 shadow        = "oak_shade"        # hard offset shadow under windows and the bar
-focusBorder      = "amber_edge"    # focused window's edge, lit side (a state indicator)
-focusBorderShade = "amber_ink"     # …its shaded side; both ends pass 3:1
+focusBorder      = "pink"          # focused window's edge, lit side (the web's focus pink)
+focusBorderShade = "pink_ink"      # …its shaded side; both ends pass 3:1
 borderShade      = "straw_shade"   # unfocused edges, shaded side (`border` is the lit side)
 highlight        = "parchment_hi"  # 1px lit lip inside a card's top/left edge
+pencil           = "gel"           # pencilled text in the hand face (the clock)
 
 # ── Roles: "night archive" ──────────────────────────────────────────────────
 [roles.dark]
@@ -117,19 +120,20 @@ borderStrong  = "leather"
 textPrimary   = "parchment"
 textSecondary = "straw"
 textTertiary  = "leather"
-accent        = "amber"            # fills are mode-stable by design
+accent        = "gel_glow"
 warning       = "rose"
 good          = "moss"
 media         = "rose"
-accentSolid   = "amber"            # the plain fill already passes against umber
+accentSolid   = "gel_glow"
 onAccentSolid = "umber"
 scanline      = "black"
 desk          = "ebony"
 shadow        = "black"
-focusBorder      = "amber_glow"    # lit side: lighter on a dark card
-focusBorderShade = "amber"
+focusBorder      = "pink_glow"     # lit side: lighter on a dark card
+focusBorderShade = "pink_dusk"
 borderShade      = "umber_mid"
 highlight        = "umber_mid"
+pencil           = "gel_glow"
 
 # ── Terminal (kitty) ────────────────────────────────────────────────────────
 # ANSI semantics are kept in both modes: black is dark and white is light.
@@ -139,13 +143,13 @@ highlight        = "umber_mid"
 [terminal.light]
 background              = "parchment"
 foreground              = "umber"
-cursor                  = "amber_ink"
+cursor                  = "pink"
 cursor_text_color       = "parchment"
 selection_background    = "parchment_deep"
 selection_foreground    = "umber"
-active_border_color     = "amber"
+active_border_color     = "pink"
 inactive_border_color   = "straw"
-active_tab_background   = "amber_ink"
+active_tab_background   = "gel"
 active_tab_foreground   = "parchment"
 inactive_tab_background = "parchment_deep"
 inactive_tab_foreground = "walnut"
@@ -170,13 +174,13 @@ color15 = "parchment_hi"      # bright white
 [terminal.dark]
 background              = "umber"
 foreground              = "parchment"
-cursor                  = "amber"
+cursor                  = "pink_glow"
 cursor_text_color       = "umber"
 selection_background    = "umber_line"
 selection_foreground    = "parchment"
-active_border_color     = "amber"
+active_border_color     = "pink_glow"
 inactive_border_color   = "umber_line"
-active_tab_background   = "amber"
+active_tab_background   = "gel_glow"
 active_tab_foreground   = "umber"
 inactive_tab_background = "umber_deep"
 inactive_tab_foreground = "straw"
@@ -231,8 +235,10 @@ desk_seed  = 7        # wallpaper seed for the web desk
 desk_size  = "320x200"
 desk_scale = 4        # the desk is shown at exactly this scale: one pixel = one unit
 
-# ── Type (web) ──────────────────────────────────────────────────────────────
+# ── Type (web and desktop) ──────────────────────────────────────────────────
 # Only top-level headings are mono; dates and item numbers are pencilled in.
+# The desktop uses the first family of each stack: mono for the bar, menus and
+# kitty, hand for the clock, text for notifications. `make fonts` installs them.
 [type]
 text = '"Newsreader", "Iowan Old Style", Charter, Georgia, serif'
 head = '"Archivo", "Arial Narrow", system-ui, sans-serif'

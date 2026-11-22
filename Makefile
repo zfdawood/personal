@@ -1,4 +1,4 @@
-.PHONY: gen check preview hooks install colors site skills zed vscode
+.PHONY: gen check preview hooks install colors fonts site skills zed vscode
 
 # Regenerate every app's colors from tokens.toml.
 gen:
@@ -21,6 +21,10 @@ hooks:
 # Full install: every config dir (existing ones are backed up first).
 install: gen
 	@./install.sh
+
+# Fetch the brand's fonts (tokens.toml [type]) into ~/.local/share/fonts.
+fonts:
+	@./install.sh --fonts
 
 # Regenerate and redeploy only the generated color files, then reload running
 # apps (and repaint the wallpaper) — the quick path after editing a color in

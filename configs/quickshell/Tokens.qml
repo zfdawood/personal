@@ -12,6 +12,11 @@ Singleton {
     readonly property int unit: 4
     readonly property int cut: 2
     readonly property int shadow: 1
+    // [type]: the first family of each stack.
+    readonly property string fontMono: "JetBrains Mono"
+    readonly property string fontText: "Newsreader"
+    readonly property string fontHand: "Kalam"
+    readonly property string fontHead: "Archivo"
     readonly property var light: ({
         bgPrimary:        "#F3E9D8",
         bgAlt:            "#E3D5B8",
@@ -20,19 +25,20 @@ Singleton {
         textPrimary:      "#2B2420",
         textSecondary:    "#5C4A2E",
         textTertiary:     "#8A7654",
-        accent:           "#C97B3D",
+        accent:           "#5A3D94",
         warning:          "#B5654F",
         good:             "#7C8B6F",
         media:            "#B5654F",
-        accentSolid:      "#8A5327",
+        accentSolid:      "#5A3D94",
         onAccentSolid:    "#F3E9D8",
         scanline:         "#000000",
         desk:             "#B39C78",
         shadow:           "#7A6646",
-        focusBorder:      "#B0642A",
-        focusBorderShade: "#8A5327",
+        focusBorder:      "#AD3A6C",
+        focusBorderShade: "#8A2D56",
         borderShade:      "#B9A684",
-        highlight:        "#FBF6EC"
+        highlight:        "#FBF6EC",
+        pencil:           "#5A3D94"
     })
     readonly property var dark: ({
         bgPrimary:        "#2B2420",
@@ -42,18 +48,19 @@ Singleton {
         textPrimary:      "#F3E9D8",
         textSecondary:    "#C9B896",
         textTertiary:     "#8A7654",
-        accent:           "#C97B3D",
+        accent:           "#BBA5E8",
         warning:          "#B5654F",
         good:             "#7C8B6F",
         media:            "#B5654F",
-        accentSolid:      "#C97B3D",
+        accentSolid:      "#BBA5E8",
         onAccentSolid:    "#2B2420",
         scanline:         "#000000",
         desk:             "#120E0B",
         shadow:           "#000000",
-        focusBorder:      "#D08C57",
-        focusBorderShade: "#C97B3D",
+        focusBorder:      "#E58BB0",
+        focusBorderShade: "#BF4A7E",
         borderShade:      "#3A3129",
-        highlight:        "#3A3129"
+        highlight:        "#3A3129",
+        pencil:           "#BBA5E8"
     })
 }

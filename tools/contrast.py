@@ -124,6 +124,7 @@ ROLE_RULES: list[Rule] = [
     Rule("onAccentSolid", "accentSolid", AA, "active workspace number"),
     Rule("focusBorder", "bgPrimary", NON_TEXT, "focused window edge, lit side"),
     Rule("focusBorderShade", "bgPrimary", NON_TEXT, "focused window edge, shaded side"),
+    Rule("pencil", "bgPrimary", AA, "the clock, pencilled in"),
 ]
 
 

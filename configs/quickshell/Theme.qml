@@ -13,7 +13,7 @@ Singleton {
 
     // ── Mode ────────────────────────────────────────────────────────────────
     // Follows the settings menu (SUPER+comma), which writes settings.json;
-    // tokens.toml's `mode` is only the default for a fresh install.
+    // `make install` / `make colors` set it from tokens.toml's `mode`.
     readonly property bool darkMode: Settings.mode === "dark"
 
     // ── Spacing: one 4px unit ───────────────────────────────────────────────
@@ -39,24 +39,15 @@ Singleton {
     property real scanlineOpacity: 0.06
 
     // ── Typography ──────────────────────────────────────────────────────────
-    // Departure Mono is the target (chunky, pixel-ish, closest to Signalis).
-    // Falls back cleanly to JetBrains Mono if the otf isn't installed yet.
-    readonly property string fontFamily: monoFont.status === FontLoader.Ready
-        ? monoFont.name
-        : "JetBrains Mono"
-    // Departure Mono is a pixel font drawn on an 11px grid: it's only crisp at
-    // 11px (or 22, 33…), so there's one size, and hierarchy comes from color.
-    readonly property int fontSize: 11
+    // The web's faces, from tokens.toml [type] (installed by `make fonts`):
+    // mono for structure (bar, menus), the hand for the pencilled clock.
+    readonly property string fontFamily: Tokens.fontMono
+    readonly property int fontSize: 12
+    readonly property string handFamily: Tokens.fontHand
+    readonly property int handSize: 16     // Kalam runs small; 16 fills the bar's line
 
     // ── Clock ───────────────────────────────────────────────────────────────
     readonly property bool clock24h: Settings.clock24h   // false: "5:10 pm"; true: "17:10"
-
-    FontLoader {
-        id: monoFont
-        // Copied in by install.sh from ~/.local/share/fonts if present;
-        // harmless if absent (fallback kicks in).
-        source: Qt.resolvedUrl("fonts/DepartureMono-Regular.otf")
-    }
 
     // ── Palette ─────────────────────────────────────────────────────────────
     // Both mode sets are generated from tokens.toml into Tokens.qml; edit the
@@ -85,4 +76,5 @@ Singleton {
     readonly property color focusBorderShade: set.focusBorderShade
     readonly property color borderShade:      set.borderShade
     readonly property color highlight:        set.highlight   // 1px lit lip inside a card
+    readonly property color pencil:           set.pencil      // purple ink, for the hand face
 }

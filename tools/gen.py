@@ -24,6 +24,11 @@ from tokens import MODES, REPO, Tokens, load
 CONFIGS = REPO / "configs"
 TEMPLATES = REPO / "templates"
 
+def font(t: Tokens, role: str) -> str:
+    """The first family of a [type] CSS stack: what the desktop asks fontconfig for."""
+    return t.type[role].split(",")[0].strip().strip('"\'')
+
+
 HEADER = "GENERATED from tokens.toml by tools/gen.py — edit tokens.toml, then run `make`."
 
 
@@ -74,6 +79,9 @@ def tokens_qml(t: Tokens) -> str:
         f"    readonly property int unit: {t.structure['unit']}\n"
         f"    readonly property int cut: {t.structure['cut']}\n"
         f"    readonly property int shadow: {t.structure['shadow']}\n"
+        "    // [type]: the first family of each stack.\n"
+        + "".join(f'    readonly property string font{r.capitalize()}: "{font(t, r)}"\n' for r in ("mono", "text", "hand", "head"))
+        + 
         f"    readonly property var light: {obj(t.roles['light'])}\n"
         f"    readonly property var dark: {obj(t.roles['dark'])}\n"
         "}\n"
@@ -85,7 +93,7 @@ def mako(t: Tokens, mode: str) -> str:
     return (
         f"# {HEADER}\n# Template: templates/mako.config. Uses roles.{mode}.\n"
         f"# ~/.config/mako/config is a link to this file or its other-mode twin.\n\n"
-        + template.substitute(t.roles[mode])
+        + template.substitute(t.roles[mode], fontText=font(t, "text"))
     )
 
 

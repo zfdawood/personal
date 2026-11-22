@@ -3,16 +3,16 @@
 
 return {
     light = {
-        focusBorder      = 0xffb0642a,
-        focusBorderShade = 0xff8a5327,
+        focusBorder      = 0xffad3a6c,
+        focusBorderShade = 0xff8a2d56,
         border           = 0xffc9b896,
         borderShade      = 0xffb9a684,
         highlight        = 0xfffbf6ec,
         desk             = 0xffb39c78,
         shadow           = 0xff7a6646,
         rgb = {
-            focusBorder      = "rgba(b0642aff)",
-            focusBorderShade = "rgba(8a5327ff)",
+            focusBorder      = "rgba(ad3a6cff)",
+            focusBorderShade = "rgba(8a2d56ff)",
             border           = "rgba(c9b896ff)",
             borderShade      = "rgba(b9a684ff)",
             highlight        = "rgba(fbf6ecff)",
@@ -21,16 +21,16 @@ return {
         },
     },
     dark = {
-        focusBorder      = 0xffd08c57,
-        focusBorderShade = 0xffc97b3d,
+        focusBorder      = 0xffe58bb0,
+        focusBorderShade = 0xffbf4a7e,
         border           = 0xff4a3f35,
         borderShade      = 0xff3a3129,
         highlight        = 0xff3a3129,
         desk             = 0xff120e0b,
         shadow           = 0xff000000,
         rgb = {
-            focusBorder      = "rgba(d08c57ff)",
-            focusBorderShade = "rgba(c97b3dff)",
+            focusBorder      = "rgba(e58bb0ff)",
+            focusBorderShade = "rgba(bf4a7eff)",
             border           = "rgba(4a3f35ff)",
             borderShade      = "rgba(3a3129ff)",
             highlight        = "rgba(3a3129ff)",

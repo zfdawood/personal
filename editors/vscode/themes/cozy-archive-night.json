@@ -74,7 +74,7 @@
     "scrollbarSlider.hoverBackground": "#A18A6499",
     "terminal.background": "#2B2420",
     "terminal.foreground": "#F3E9D8",
-    "terminalCursor.foreground": "#C97B3D",
+    "terminalCursor.foreground": "#E58BB0",
     "terminal.selectionBackground": "#4A3F35",
     "terminal.ansiBlack": "#4A3F35",
     "terminal.ansiBrightBlack": "#A18A64",

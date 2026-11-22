@@ -83,7 +83,9 @@ Every app ships both its day and night colors. At runtime, `apply.py` reads
 `~/.config/cozy-archive/settings.json` and switches links
 (`kitty/colors.conf`, `mako/config`), writes `hypr/settings.lua`, draws the
 wallpaper if it isn't cached, and reloads what's running. The settings menu
-runs it on every change; Hyprland runs it at login.
+runs it on every change; Hyprland runs it at login. `make install` and
+`make colors` first copy `mode` from `tokens.toml` into `settings.json`, so the
+versioned file decides day or night; the menu's toggle lasts until the next install.
 
 **To change a color, edit `tokens.toml`, then `make` (and `make colors` to
 deploy).** Quickshell, Hyprland,
@@ -131,8 +133,9 @@ Hand-written, and read only through generated variables: `templates/web/componen
 
 Hyprland (≥0.57, which reads only the Lua config), Quickshell (>0.3.0),
 kitty, mako, Python 3.11+ (stdlib only: wallpaper and settings). On Arch, all
-from the official repos: `sudo pacman -S hyprland quickshell kitty mako python`.
-Optional: nautilus (bound to `SUPER+E`).
+from the official repos: `sudo pacman -S hyprland quickshell kitty mako python nautilus`.
+nautilus is bound to `SUPER+E` (vm-guest-setup.sh installs it). `make fonts`
+fetches the brand's fonts (JetBrains Mono, Newsreader, Kalam, Archivo).
 
 ## Install
 
