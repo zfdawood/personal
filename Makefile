@@ -18,9 +18,12 @@ hooks:
 	@git config core.hooksPath .githooks
 	@echo "git hooks enabled: .githooks/"
 
-# Full install: every config dir (existing ones are backed up first).
+# Full install: every config dir (existing ones are backed up first), plus the
+# editor themes for whichever editors are installed (Arch's Zed is `zeditor`).
 install: gen
 	@./install.sh
+	@if command -v zed >/dev/null 2>&1 || command -v zeditor >/dev/null 2>&1; then $(MAKE) --no-print-directory zed; fi
+	@if command -v code >/dev/null 2>&1; then $(MAKE) --no-print-directory vscode; fi
 
 # Fetch the brand's fonts (tokens.toml [type]) into ~/.local/share/fonts.
 fonts:
@@ -35,7 +38,8 @@ colors: gen
 # ── The brand outside the desktop ──────────────────────────────────────────
 # web/ is generated with everything else by `make` and read in place: the site
 # (site/) builds from it and the skills (skills/) point at it, so nothing is
-# copied. The editor themes do need installing into each editor. Override a
+# copied. The editor themes are copied into each editor (`make install` does
+# this for the editors it finds; `make zed` / `make vscode` do one). Override a
 # path on the command line, e.g.
 # `make zed ZED_THEMES=/mnt/c/Users/me/AppData/Roaming/Zed/themes`.
 ZED_THEMES  ?= $(HOME)/.config/zed/themes

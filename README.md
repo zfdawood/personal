@@ -122,7 +122,7 @@ Who reads them, in place: `site/` (its build copies `web/` into `dist/`, and `el
 ```sh
 make site     # build zdawood.dev and serve it at http://localhost:8000
 make skills   # link skills/* into ~/.claude/skills (SKILLS=… to change)
-make zed      # → ~/.config/zed/themes (ZED_THEMES=… to change)
+make zed      # → ~/.config/zed/themes (ZED_THEMES=… to change; make install does this if Zed is installed)
 make vscode   # → ~/.vscode/extensions/… (VSCODE_EXT=… to change)
 ```
 
