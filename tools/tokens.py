@@ -30,7 +30,7 @@ class Tokens:
     roles: Mapping[str, Colors]       # mode → role → hex
     terminal: Mapping[str, Colors]    # mode → kitty key → hex
     wallpaper: Mapping[str, Mapping[str, list[str]]]  # mode → material → ramp (hex, dark → light)
-    structure: Mapping[str, Any]      # unit, cut, shadow, bevel, page, desk_* (numbers and strings)
+    structure: Mapping[str, Any]      # unit, cut, shadow, bevel, page, desk_*, alpha (numbers and strings)
     type: Mapping[str, str]           # web font stacks, plus google_fonts (a stylesheet URL)
     web: Mapping[str, Colors]         # mode → brand.css role → hex
     web_alpha: Mapping[str, Mapping[str, tuple[str, float]]]  # mode → role → (hex, alpha)
@@ -131,6 +131,10 @@ def _structure(raw: Mapping[str, Any]) -> dict[str, Any]:
     for key in STRUCTURE_INTS:
         if not isinstance(table.get(key), int) or table[key] <= 0:
             raise TokenError(f"structure.{key}: expected a positive integer, got {table.get(key)!r}")
+    alpha = table.get("alpha", 1.0)
+    if isinstance(alpha, bool) or not isinstance(alpha, (int, float)) or not 0.5 <= alpha <= 1:
+        raise TokenError(f"structure.alpha: expected a number from 0.5 to 1, got {alpha!r}")
+    table["alpha"] = float(alpha)
     size = table.get("desk_size")
     if not (isinstance(size, str) and re.fullmatch(r"[1-9][0-9]*x[1-9][0-9]*", size)):
         raise TokenError(f"structure.desk_size: expected \"WxH\", got {size!r}")

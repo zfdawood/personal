@@ -11,6 +11,8 @@ import "../oklch.js" as Oklch
 //             hue meters, or type a hex. Everywhere it's used changes.
 //   Roles     point a role (roles, terminal, web, editor, syntax; day or night)
 //             at another swatch.
+//   Alpha     how see-through kitty (and yazi), Zed and the bar are; their
+//             text is then checked against the worst pixel of the desk behind.
 //
 // Every change is checked as you make it by contrast.py's own rules (through
 // tools/palette.py), so you see each check the swatch or role takes part in,
@@ -42,7 +44,7 @@ PanelWindow {
     PersistentProperties {
         id: place
         reloadableId: "colorPanel"
-        property string tab: "swatches"       // "swatches" | "roles"
+        property string tab: "swatches"       // "swatches" | "roles" | "alpha"
         property int swatch: 0
         property int table: 0
         property int role: 0                  // 0 is the table chooser row
@@ -56,7 +58,11 @@ PanelWindow {
     readonly property var tableNames: model ? Object.keys(model.tables) : []
     readonly property string tableName: tableNames[place.table] ?? ""
     readonly property var roles: model && tableName ? model.tables[tableName] : []
-    readonly property var current: place.tab === "swatches" ? swatches[place.swatch] : roles[place.role - 1]
+    readonly property var alphaItem: model ? { key: "alpha", value: model.alpha,
+        note: "kitty (and yazi in it), Zed, the bar. VS Code can't be see-through." } : undefined
+    readonly property var current: place.tab === "swatches" ? swatches[place.swatch]
+        : place.tab === "roles" ? roles[place.role - 1] : alphaItem
+    readonly property var tabs: ["swatches", "roles", "alpha"]
 
     function swatchHex(name) {
         const s = swatches.find(s => s.name === name)
@@ -70,6 +76,7 @@ PanelWindow {
     property string draftHex: "#000000"
     property bool draftInGamut: true
     property string draftRef: ""
+    property real draftAlpha: 1
 
     function setLCH(L, C, h) {
         dL = Math.max(0, Math.min(1, L))
@@ -107,17 +114,22 @@ PanelWindow {
         if (place.tab === "swatches") {
             setHex(current.hex)
             hexInput.text = current.hex
+        } else if (place.tab === "alpha") {
+            draftAlpha = current.value
+            requestCheck()
         } else {
             draftRef = current.ref
             requestCheck()
         }
     }
-    readonly property bool dirty: !!current && (place.tab === "swatches"
-        ? draftHex !== current.hex : draftRef !== current.ref)
+    readonly property bool dirty: !!current && (place.tab === "swatches" ? draftHex !== current.hex
+        : place.tab === "alpha" ? Math.abs(draftAlpha - current.value) > 0.001
+        : draftRef !== current.ref)
 
     function edits() {
         if (!current) return null
         if (place.tab === "swatches") return { swatch: { [current.name]: draftHex } }
+        if (place.tab === "alpha") return { structure: { alpha: Math.round(draftAlpha * 100) / 100 } }
         const ref = {}
         ref[tableName] = { [current.key]: draftRef }
         return { ref: ref }
@@ -242,11 +254,11 @@ PanelWindow {
     // ── keys ────────────────────────────────────────────────────────────────
     function clampList() {
         if (place.tab === "swatches") place.swatch = Math.max(0, Math.min(swatches.length - 1, place.swatch))
-        else place.role = Math.max(0, Math.min(roles.length, place.role))
+        else if (place.tab === "roles") place.role = Math.max(0, Math.min(roles.length, place.role))
     }
     function moveList(d) {
         if (place.tab === "swatches") place.swatch += d
-        else place.role += d
+        else if (place.tab === "roles") place.role += d
         clampList()
     }
     function nudge(dir, coarse) {
@@ -254,6 +266,10 @@ PanelWindow {
             if (editRow === 0) setLCH(dL + dir * (coarse ? 0.05 : 0.01), dC, dH)
             else if (editRow === 1) setLCH(dL, dC + dir * (coarse ? 0.02 : 0.005), dH)
             else if (editRow === 2) setLCH(dL, dC, dH + dir * (coarse ? 15 : 2))
+        } else if (place.tab === "alpha") {
+            draftAlpha = Math.max(0.5, Math.min(1, Math.round((draftAlpha + dir * (coarse ? 0.05 : 0.01)) * 100) / 100))
+            confirmFailing = false
+            requestCheck()
         } else {
             const names = swatches.map(s => s.name)
             let i = names.indexOf(draftRef)
@@ -274,7 +290,8 @@ PanelWindow {
         if (!editing) {
             if (k === Qt.Key_Escape) Menus.colorsOpen = false
             else if (k === Qt.Key_Tab || k === Qt.Key_Backtab) {
-                place.tab = place.tab === "swatches" ? "roles" : "swatches"
+                const i = tabs.indexOf(place.tab)
+                place.tab = tabs[(i + (k === Qt.Key_Backtab ? tabs.length - 1 : 1)) % tabs.length]
             }
             else if (k === Qt.Key_Down) moveList(shift ? 5 : 1)
             else if (k === Qt.Key_Up) moveList(shift ? -5 : -1)
@@ -356,7 +373,7 @@ PanelWindow {
                     anchors.verticalCenter: parent.verticalCenter
                     spacing: 2 * win.u
                     Repeater {
-                        model: [["swatches", "Swatches"], ["roles", "Roles"]]
+                        model: [["swatches", "Swatches"], ["roles", "Roles"], ["alpha", "Alpha"]]
                         delegate: Card {
                             id: tabChip
                             required property var modelData
@@ -394,8 +411,10 @@ PanelWindow {
                     height: parent.height
                     clip: true
 
-                    readonly property int count: place.tab === "swatches" ? win.swatches.length : win.roles.length + 1
-                    readonly property int selected: place.tab === "swatches" ? place.swatch : place.role
+                    readonly property int count: place.tab === "swatches" ? win.swatches.length
+                        : place.tab === "roles" ? win.roles.length + 1 : (win.alphaItem ? 1 : 0)
+                    readonly property int selected: place.tab === "swatches" ? place.swatch
+                        : place.tab === "roles" ? place.role : 0
                     property int first: 0
                     onSelectedChanged: {
                         if (selected < first) first = selected
@@ -409,7 +428,8 @@ PanelWindow {
                             required property int index
                             readonly property int i: list.first + index
                             readonly property bool chooser: place.tab === "roles" && i === 0
-                            readonly property var item: place.tab === "swatches" ? win.swatches[i] : win.roles[i - 1]
+                            readonly property var item: place.tab === "swatches" ? win.swatches[i]
+                                : place.tab === "roles" ? win.roles[i - 1] : win.alphaItem
                             readonly property bool current: i === list.selected
                             readonly property bool solid: current && !win.editing
 
@@ -434,14 +454,14 @@ PanelWindow {
                             }
 
                             Chip {
-                                visible: !row.chooser && !!row.item
+                                visible: !row.chooser && !!row.item && !!row.item.hex
                                 x: 4 * win.u
                                 anchors.verticalCenter: parent.verticalCenter
-                                color: row.item ? row.item.hex : "transparent"
+                                color: row.item && row.item.hex ? row.item.hex : "transparent"
                             }
                             Words {
                                 visible: !row.chooser
-                                x: 10 * win.u
+                                x: place.tab === "alpha" ? 4 * win.u : 10 * win.u
                                 width: parent.width - 30 * win.u
                                 height: parent.height
                                 text: row.item ? (place.tab === "swatches" ? row.item.name : row.item.key) : ""
@@ -454,7 +474,8 @@ PanelWindow {
                                 width: 18 * win.u
                                 height: parent.height
                                 horizontalAlignment: Text.AlignRight
-                                text: row.item ? (place.tab === "swatches" ? row.item.hex : row.item.ref) : ""
+                                text: !row.item ? "" : place.tab === "swatches" ? row.item.hex
+                                    : place.tab === "alpha" ? row.item.value.toFixed(2) : row.item.ref
                                 color: row.solid ? Theme.textOnAccent : Theme.textSecondary
                             }
 
@@ -462,7 +483,7 @@ PanelWindow {
                                 anchors.fill: parent
                                 onClicked: {
                                     if (place.tab === "swatches") place.swatch = row.i
-                                    else place.role = row.i
+                                    else if (place.tab === "roles") place.role = row.i
                                     win.editing = !row.chooser
                                     win.editRow = 0
                                     win.syncFocus()
@@ -492,6 +513,7 @@ PanelWindow {
                             height: parent.height
                             text: !win.current ? (place.tab === "roles" ? "Pick a role" : "")
                                 : place.tab === "swatches" ? win.current.name
+                                : place.tab === "alpha" ? "alpha"
                                 : win.tableName + "." + win.current.key
                         }
                         Words {
@@ -505,13 +527,13 @@ PanelWindow {
 
                     // Before → after.
                     Row {
-                        visible: !!win.current
+                        visible: !!win.current && place.tab !== "alpha"
                         height: 10 * win.u
                         spacing: 2 * win.u
                         Rectangle {
                             width: 16 * win.u; height: 8 * win.u
                             anchors.verticalCenter: parent.verticalCenter
-                            color: win.current ? win.current.hex : "transparent"
+                            color: win.current && win.current.hex ? win.current.hex : "transparent"
                             border.width: Theme.borderThin; border.color: Theme.borderShade
                         }
                         Words {
@@ -535,7 +557,7 @@ PanelWindow {
 
                     // Where it's used: checked or not (the lit lip, the desk…).
                     Words {
-                        visible: !!win.current
+                        visible: !!win.current && place.tab !== "alpha"
                         width: editor.inner
                         height: win.rowHeight
                         readonly property var used: !win.current || !win.model ? []
@@ -663,6 +685,64 @@ PanelWindow {
                         }
                     }
 
+                    // ── alpha: one meter. Each step shows the bar's face at
+                    // that alpha over the desk, so you see what you'd get. ──
+                    Item {
+                        visible: place.tab === "alpha" && !!win.current
+                        width: editor.inner
+                        height: 9 * win.u
+                        readonly property int cells: 40
+                        Marker { visible: win.editing; x: -3 * win.u; anchors.verticalCenter: parent.verticalCenter }
+                        Words { width: 4 * win.u; height: parent.height; text: "α"; color: Theme.textSecondary }
+                        Slot {
+                            id: alphaTrack
+                            x: 5 * win.u
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: parent.cells * 2 * win.u + 2 * Theme.borderThin
+                            height: 4 * win.u
+                            Row {
+                                x: Theme.borderThin
+                                y: Theme.borderThin
+                                Repeater {
+                                    model: 40
+                                    delegate: Rectangle {
+                                        required property int index
+                                        readonly property real a: 0.5 + (index + 0.5) / 40 * 0.5
+                                        width: 2 * win.u
+                                        height: alphaTrack.height - 2 * Theme.borderThin
+                                        color: Qt.rgba(a * Theme.bgPrimary.r + (1 - a) * Theme.desk.r,
+                                                       a * Theme.bgPrimary.g + (1 - a) * Theme.desk.g,
+                                                       a * Theme.bgPrimary.b + (1 - a) * Theme.desk.b, 1)
+                                    }
+                                }
+                            }
+                            Rectangle {
+                                z: 2
+                                x: Theme.borderThin - 1 + (win.draftAlpha - 0.5) / 0.5 * 40 * 2 * win.u
+                                y: -win.u
+                                width: Theme.borderWidth
+                                height: alphaTrack.height + 2 * win.u
+                                color: win.editing ? Theme.focusBorder : Theme.textPrimary
+                            }
+                            MouseArea {
+                                anchors.fill: parent
+                                function pick(mx) {
+                                    const t = Math.max(0, Math.min(1, (mx - Theme.borderThin) / (40 * 2 * win.u)))
+                                    win.draftAlpha = Math.round((0.5 + t * 0.5) * 100) / 100
+                                    win.confirmFailing = false
+                                    win.requestCheck()
+                                }
+                                onPressed: mouse => { win.editing = true; win.syncFocus(); pick(mouse.x) }
+                                onPositionChanged: mouse => { if (pressed) pick(mouse.x) }
+                            }
+                        }
+                        Words {
+                            anchors.right: parent.right
+                            height: parent.height
+                            text: win.draftAlpha.toFixed(2) + (win.dirty ? "  was " + win.current.value.toFixed(2) : "")
+                        }
+                    }
+
                     // ── roles: which swatch ──
                     Item {
                         visible: place.tab === "roles" && !!win.current
@@ -730,7 +810,8 @@ PanelWindow {
                                 height: parent.height
                                 text: (chk.modelData.ok ? "ok   " : "FAIL ")
                                     + (chk.step ? "ΔL " + chk.modelData.value.toFixed(2) : chk.modelData.value.toFixed(2))
-                                    + (chk.modelData.value !== chk.modelData.was ? " ← " + chk.modelData.was : "")
+                                    + (chk.modelData.was === null ? "  (new)"
+                                       : chk.modelData.value !== chk.modelData.was ? " ← " + chk.modelData.was : "")
                                 color: chk.modelData.ok ? Theme.textPrimary : Theme.alert
                             }
                             Words {
@@ -753,8 +834,9 @@ PanelWindow {
                 leftPadding: 2 * win.u
                 text: win.confirmFailing ? win.failing + " check" + (win.failing === 1 ? "" : "s") + " would fail. Enter again saves anyway; Esc undoes."
                     : win.saving || win.status ? win.status
-                    : !win.editing ? "Up/Down choose. Right edits. Tab: swatches/roles. Esc closes."
+                    : !win.editing ? "Up/Down choose. Right edits. Tab: swatches/roles/alpha. Esc closes."
                     : place.tab === "swatches" ? "Up/Down: L C h #. Left/Right adjust (Shift: more). Enter saves. Esc undoes."
+                    : place.tab === "alpha" ? "Left/Right: 0.01 (Shift: 0.05). Enter saves. Esc undoes."
                     : "Left/Right picks a swatch (Shift: 5). Enter saves. Esc undoes."
                 color: win.confirmFailing || (win.status && win.statusIsError) ? Theme.alert : Theme.textSecondary
             }

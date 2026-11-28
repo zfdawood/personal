@@ -248,6 +248,15 @@ leaf =
 ANSI = ["black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"]
 
 
+# Zed surfaces that take [structure] alpha.
+ZED_SEE_THROUGH = (
+    "background", "surface.background", "panel.background", "title_bar.background",
+    "status_bar.background", "toolbar.background", "tab_bar.background", "tab.inactive_background",
+    "tab.active_background", "editor.background", "editor.gutter.background",
+    "editor.subheader.background", "terminal.background",
+)
+
+
 def _zed_theme(t: Tokens, mode: str) -> dict:
     e, sx, term = t.editor[mode], t.syntax[mode], t.terminal[mode]
     style: dict[str, object] = {
@@ -351,6 +360,14 @@ def _zed_theme(t: Tokens, mode: str) -> dict:
             entry["font_weight"] = 700
         syntax[scope] = entry
     style["syntax"] = syntax
+    # [structure] alpha: the window's own surfaces go see-through (popovers and
+    # selections stay as they are). At 1 the theme is exactly the opaque one.
+    alpha = t.structure["alpha"]
+    if alpha < 1:
+        suffix = f"{round(alpha * 255):02X}"
+        style["background.appearance"] = "transparent"
+        for key in ZED_SEE_THROUGH:
+            style[key] = str(style[key])[:7] + suffix
     return {
         "name": f"Cozy Archive {'Day' if mode == 'light' else 'Night'}",
         "appearance": mode,

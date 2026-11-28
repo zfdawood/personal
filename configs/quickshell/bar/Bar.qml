@@ -43,6 +43,7 @@ Scope {
                 y: Theme.gap
                 width: parent.width - 2 * Theme.gap
                 height: Theme.barHeight
+                fillAlpha: Theme.barAlpha      // tokens.toml alpha
 
                 Item {
                     anchors.fill: parent

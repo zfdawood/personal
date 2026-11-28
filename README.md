@@ -58,7 +58,15 @@ the horror, minus the clinical grey-and-red.
   look equal) or a hex, or point a role at another swatch. Every check the
   swatch or role takes part in is shown live, before → after, by
   `contrast.py`'s own rules; Enter rewrites that one line of `tokens.toml`,
-  regenerates and redeploys. A save that fails a check asks twice.
+  regenerates and redeploys. A save that fails a check asks twice. The
+  **Alpha** tab sets `[structure] alpha`.
+- **See-through, if you want it** (`[structure] alpha`, 0.5–1): kitty (and
+  yazi inside it), Zed, and the bar's face (its bevel stays solid). VS Code has
+  no window transparency, so it stays opaque. Below 1, every text check on
+  those surfaces is also run against the surface laid over each color the desk
+  can show. The desk is dithered to its ramp colors only, so that worst case
+  is exact. The dimmest text (comments, bright ANSI, line numbers) sits just
+  above 4.5:1, so it fails at any alpha below 1 until those colors get darker.
 - **One login card** for the lock screen (SUPER+L, 10 minutes idle, before
   sleep; PAM) and the boot greeter (greetd; `make greeter`). Same card, same tokens.
 - **Files** (SUPER+E): yazi in kitty, text first (`/ @ * !` markers, no icon

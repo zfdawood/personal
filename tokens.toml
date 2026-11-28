@@ -236,6 +236,10 @@ page       = 1200     # px. The widest a web sheet gets
 desk_seed  = 7        # wallpaper seed for the web desk
 desk_size  = "320x200"
 desk_scale = 4        # the desk is shown at exactly this scale: one pixel = one unit
+# How much of the surface you see, 0.5–1 (1 = opaque): kitty (and yazi in it),
+# Zed and the bar. Text on a see-through surface is checked against that
+# surface laid over every color the desk can show (contrast.py, "over desk").
+alpha      = 1.0
 
 # ── Type (web and desktop) ──────────────────────────────────────────────────
 # Only top-level headings are mono; dates and item numbers are pencilled in.

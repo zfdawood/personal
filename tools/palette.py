@@ -10,10 +10,12 @@
 redeploy rewrites Quickshell's Tokens.qml, Quickshell reloads, and the picker
 that asked is gone by the time the save finishes. The reloaded picker reads it.
 
-EDITS is JSON: {"swatch": {"gel": "#6A4DA4"},
-                "ref":    {"roles.light": {"accent": "pink"}}}
+EDITS is JSON: {"swatch":    {"gel": "#6A4DA4"},
+                "ref":       {"roles.light": {"accent": "pink"}},
+                "structure": {"alpha": 0.9}}
 `swatch` repaints a swatch everywhere it's used; `ref` points one role (in
-roles, terminal, web, editor or syntax) at another swatch.
+roles, terminal, web, editor or syntax) at another swatch; `structure` sets a
+number in [structure] (only `alpha`, from the picker).
 
 tokens.toml stays the one source of truth: an edit rewrites only the value on
 its own line, so comments, alignment and order survive, and git shows exactly
@@ -40,6 +42,8 @@ REF_TABLES = ("roles", "terminal", "web", "editor", "syntax")
 MODES = ("light", "dark")
 HEX = re.compile(r"^#[0-9A-Fa-f]{6}$")
 HEADER = re.compile(r"^\s*\[([^\]]+)\]\s*(#.*)?$")
+NUMBER = re.compile(r'^(\s*)([A-Za-z_][A-Za-z0-9_]*)(\s*=\s*)([0-9.]+)(.*)$')
+STRUCTURE_EDITABLE = ("alpha",)
 ENTRY = re.compile(r'^(\s*)([A-Za-z_][A-Za-z0-9_]*)(\s*=\s*)"([^"]*)"(.*)$')
 
 
@@ -64,8 +68,24 @@ def apply_edits(text: str, edits: dict) -> str:
     for section in refs:
         if section.split(".")[0] not in REF_TABLES:
             raise ValueError(f"{section}: the picker only repoints {', '.join(REF_TABLES)}")
+    numbers = edits.get("structure", {})
+    for key, value in numbers.items():
+        if key not in STRUCTURE_EDITABLE:
+            raise ValueError(f"structure.{key}: the picker only sets {', '.join(STRUCTURE_EDITABLE)}")
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            raise ValueError(f"structure.{key}: {value!r} isn't a number")
     lines = text.splitlines(keepends=True)
     seen: set[tuple[str, str]] = set()
+    section = ""
+    for i, line in enumerate(lines):
+        if m := HEADER.match(line.rstrip("\n")):
+            section = m.group(1).strip()
+        elif section == "structure" and (m := NUMBER.match(line.rstrip("\n"))) and m.group(2) in numbers:
+            end = "\n" if line.endswith("\n") else ""
+            new = f"{round(float(numbers[m.group(2)]), 2):g}"
+            new = new if "." in new else new + ".0"
+            lines[i] = f"{m.group(1)}{m.group(2)}{m.group(3)}{new}{m.group(5)}{end}"
+            seen.add(("structure", m.group(2)))
     for section, key, _value, _note, i in entries(text):
         new = None
         if section == "swatch" and key in swatches:
@@ -83,7 +103,8 @@ def apply_edits(text: str, edits: dict) -> str:
             tail = " " * max(1, column - len(head)) + tail.lstrip()
         lines[i] = head + tail + end
         seen.add((section, key))
-    wanted = {("swatch", k) for k in swatches} | {(s, k) for s, ks in refs.items() for k in ks}
+    wanted = ({("swatch", k) for k in swatches} | {(s, k) for s, ks in refs.items() for k in ks}
+              | {("structure", k) for k in numbers})
     if missing := wanted - seen:
         raise ValueError("not in tokens.toml: " + ", ".join(f"{s}.{k}" for s, k in sorted(missing)))
     return "".join(lines)
@@ -103,7 +124,9 @@ def results(t: Tokens) -> list[dict]:
             else:
                 out.append({
                     "where": title, "kind": "contrast", "value": round(r.ratio, 2), "min": rule.minimum,
-                    "ok": r.ok, "fg": rule.fg, "bg": rule.bg, "why": rule.why,
+                    # see-through checks name their background "<surface> over desk/<text>"
+                    # to keep one worst-case color per text color; show the surface part
+                    "ok": r.ok, "fg": rule.fg, "bg": rule.bg.split("/")[0], "why": rule.why,
                     "fgHex": r.fg_hex, "bgHex": r.bg_hex,
                 })
     return out
@@ -122,7 +145,8 @@ def dump(text: str) -> dict:
             tables.setdefault(section, []).append({"key": key, "ref": value, "hex": hex_, "note": note})
             if value in uses or not value.startswith("#"):
                 uses.setdefault(value, []).append(f"{section}.{key}")
-    return {"mode": t.mode, "swatches": swatches, "tables": tables, "uses": uses, "checks": results(t)}
+    return {"mode": t.mode, "alpha": t.structure["alpha"], "swatches": swatches, "tables": tables,
+            "uses": uses, "checks": results(t)}
 
 
 def probe(text: str, edits: dict) -> dict:
@@ -137,22 +161,32 @@ def probe(text: str, edits: dict) -> dict:
     swatch = {k: sentinel for k in edits.get("swatch", {})}
     # A role is probed by giving it the literal sentinel hex (tokens allow "#RRGGBB").
     ref = {sec: {k: sentinel for k in keys} for sec, keys in edits.get("ref", {}).items()}
-    return {"swatch": swatch, "ref": ref}
+    # alpha is probed at its most see-through: every check it can affect exists there.
+    structure = {k: 0.5 for k in edits.get("structure", {})}
+    return {"swatch": swatch, "ref": ref, "structure": structure}
 
 
 def check(text: str, edits: dict) -> dict:
     """Every check that involves what EDITS touches, before and after, plus any
     check that fails after it. EDITS that change nothing (a swatch set to its
     own color) show what the target is involved in."""
-    before = results(parse(text))
+    def keyed(rs: list[dict]) -> dict:
+        # Checks come and go (the see-through ones exist only below alpha 1),
+        # so they're matched by what they check, not by position.
+        return {(r["where"], r["fg"], r["bg"]): r for r in rs}
+
+    before = keyed(results(parse(text)))
     after = results(parse(apply_edits(text, edits)))
-    probed = results(parse(apply_edits(text, probe(text, edits))))
+    probed = keyed(results(parse(apply_edits(text, probe(text, edits)))))
     out = []
-    for a, b, p in zip(after, before, probed):
-        involved = (p["fgHex"], p["bgHex"]) != (b["fgHex"], b["bgHex"])
-        changed = (a["fgHex"], a["bgHex"]) != (b["fgHex"], b["bgHex"])
+    for a in after:
+        k = (a["where"], a["fg"], a["bg"])
+        b, p = before.get(k), probed.get(k)
+        colors = lambda r: (r["fgHex"], r["bgHex"]) if r else None
+        involved = p is not None and colors(p) != colors(b)
+        changed = colors(a) != colors(b)
         if involved or changed or not a["ok"]:
-            out.append({**a, "was": b["value"], "involved": involved})
+            out.append({**a, "was": b["value"] if b else None, "involved": involved})
     # Failures first, then the tightest margins: what's closest to breaking.
     out.sort(key=lambda r: (r["ok"], r["value"] / r["min"]))
     return {

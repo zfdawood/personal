@@ -12,6 +12,7 @@ Singleton {
     readonly property int unit: 4
     readonly property int cut: 2
     readonly property int shadow: 1
+    readonly property real alpha: 1
     // [type]: the first family of each stack.
     readonly property string fontMono: "JetBrains Mono"
     readonly property string fontText: "Newsreader"

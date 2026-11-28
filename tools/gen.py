@@ -37,6 +37,7 @@ def kitty(t: Tokens, mode: str) -> str:
     colors = t.terminal[mode]
     width = max(map(len, colors))
     body = "\n".join(f"{k.ljust(width)}  {v}" for k, v in colors.items())
+    body += f"\n\n# [structure] alpha: how much of the background you see.\nbackground_opacity  {t.structure['alpha']:g}"
     return (
         f"# {HEADER}\n# Uses terminal.{mode}. kitty.conf includes colors.conf, which the\n"
         f"# settings menu (apply.py) links to this file or its other-mode twin.\n\n{body}\n"
@@ -80,6 +81,7 @@ def tokens_qml(t: Tokens) -> str:
         f"    readonly property int unit: {t.structure['unit']}\n"
         f"    readonly property int cut: {t.structure['cut']}\n"
         f"    readonly property int shadow: {t.structure['shadow']}\n"
+        f"    readonly property real alpha: {t.structure['alpha']:g}\n"
         "    // [type]: the first family of each stack.\n"
         + "".join(f'    readonly property string font{r.capitalize()}: "{font(t, r)}"\n' for r in ("mono", "text", "hand", "head"))
         + 

@@ -20,6 +20,7 @@ Item {
     property color lit: Theme.highlight
     property color shade: Theme.shadow
     property bool dropShadow: true
+    property real fillAlpha: 1.0        // the flat face only; the bevel stays solid
     default property alias content: inner.data
 
     // Where the inner octagon's corners sit: the diagonal edge moved inward
@@ -50,19 +51,31 @@ Item {
     }
 
     readonly property var outer: octagon(0, chamfer)
+
+    // The shadow is the card's outline moved one unit down-right, minus the
+    // card itself, so a see-through face never shows its own shadow. The
+    // moved outline's top edge ends exactly on the card's top-right diagonal,
+    // and its bottom-left diagonal runs along the card's, so what's left is
+    // this L-shaped band (valid while the offset is at most the cut).
+    readonly property var shadowBand: {
+        const w = width, h = height, k = chamfer, s = Theme.shadowOffset
+        return [
+            Qt.point(w - k + s, s), Qt.point(w + s, k + s), Qt.point(w + s, h - k + s),
+            Qt.point(w - k + s, h + s), Qt.point(k + s, h + s), Qt.point(k, h),
+            Qt.point(w - k, h), Qt.point(w, h - k), Qt.point(w, k), Qt.point(w - k + s, s),
+        ]
+    }
     readonly property var innerPts: octagon(bevel, innerCut)
 
-    // Hard shadow: the card's own outline, one unit down-right.
+    // Hard shadow, down-right: the band the card doesn't cover.
     Shape {
         visible: card.dropShadow
-        x: Theme.shadowOffset
-        y: Theme.shadowOffset
-        width: card.width
-        height: card.height
+        width: card.width + Theme.shadowOffset
+        height: card.height + Theme.shadowOffset
         ShapePath {
             fillColor: Theme.shadow
             strokeColor: "transparent"
-            PathPolyline { path: card.outer }
+            PathPolyline { path: card.shadowBand }
         }
     }
 
@@ -93,7 +106,7 @@ Item {
         Face { corners: card.quad(6); tone: card.faceColor(card.normals[6]) }
         Face { corners: card.quad(7); tone: card.faceColor(card.normals[7]) }
         ShapePath {
-            fillColor: card.fill
+            fillColor: Qt.rgba(card.fill.r, card.fill.g, card.fill.b, card.fillAlpha)
             strokeColor: "transparent"
             PathPolyline { path: card.innerPts }
         }

@@ -28,6 +28,9 @@ Singleton {
     readonly property int groupGap:     6 * unit   // between meters
     readonly property int labelGap:     2 * unit   // label → its meter
     readonly property int chamfer:      Tokens.cut * unit  // cut corners (= Hyprland's rounding 8, power 1)
+    // tokens.toml [structure] alpha: how much of the bar's face you see (the
+    // bevel stays solid, like a frame). Menus and the login card stay opaque.
+    readonly property real barAlpha:    Tokens.alpha
 
     // Borders: the same 2px as Hyprland's windows; 1px only for recesses.
     readonly property int borderWidth: 2

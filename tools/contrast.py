@@ -254,13 +254,70 @@ def _report(title: str, rules: list[Rule], colors: Colors, tty: bool) -> list[Re
     return results
 
 
+# ── See-through surfaces ([structure] alpha) ────────────────────────────────
+# A surface with alpha < 1 shows the desk through it, so its text sits on the
+# surface blended over whatever desk pixel is behind. The desk is dithered to
+# its ramp colors only (tokens.toml [wallpaper], wallpaper.py), so checking
+# against the surface over each of those colors, plus the plain desk color, is
+# exact for the desk, not a sample. (Windows only overlap the bar or each other
+# when floating, which isn't covered.) Compositors blend in sRGB, so we do too.
+
+BAR_TEXT = {"textPrimary", "textSecondary", "pencil"}
+
+
+def over(top: str, under: str, alpha: float) -> str:
+    """`top` at `alpha` laid over `under`, blended per sRGB channel as compositors do."""
+    a, b = parse_hex(top), parse_hex(under)
+    return "#" + "".join(f"{round((alpha * x + (1 - alpha) * y) * 255):02X}" for x, y in zip(a, b))
+
+
+def desk_colors(t: Tokens, mode: str) -> list[str]:
+    ramps = t.wallpaper[mode].values()
+    return sorted({c for ramp in ramps for c in ramp} | {t.roles[mode]["desk"]})
+
+
+def see_through(rules: list[Rule], colors: Mapping[str, str], surfaces: set[str],
+                alpha: float, desk: list[str]) -> tuple[list[Rule], dict[str, str]]:
+    """The rules whose background is a see-through surface, each against the
+    worst desk pixel for that text color: same thresholds, new backgrounds."""
+    out_rules, out_colors = [], dict(colors)
+    for r in rules:
+        if r.bg not in surfaces:
+            continue
+        worst = min((over(colors[r.bg], d, alpha) for d in desk), key=lambda h: contrast(colors[r.fg], h))
+        name = f"{r.bg} over desk"
+        out_colors[f"{name}/{r.fg}"] = worst
+        out_rules.append(Rule(r.fg, f"{name}/{r.fg}", r.minimum, r.why + " (worst desk pixel)"))
+    return out_rules, out_colors
+
+
 def sections(t: Tokens) -> list[tuple[str, list, Mapping[str, str]]]:
     """Every check, as (title, rules, the colors they name): the one list that
     `check` prints and tools/palette.py (the settings menu's color picker) reads."""
+    alpha = t.structure["alpha"]
+
+    def translucent(mode: str) -> list[tuple[str, list, Mapping[str, str]]]:
+        if alpha >= 1:
+            return []
+        desk = desk_colors(t, mode)
+        syntax = {"background": t.editor[mode]["background"], **{f"syntax.{k}": v for k, v in t.syntax[mode].items()}}
+        found = [
+            (f"terminal.{mode} see-through",
+             *see_through(TERMINAL_RULES[mode], t.terminal[mode], {"background"}, alpha, desk)),
+            (f"bar.{mode} see-through",          # the bar's own text: labels, numbers, the clock
+             *see_through([r for r in ROLE_RULES if r.fg in BAR_TEXT], t.roles[mode], {"bgPrimary"}, alpha, desk)),
+            (f"editor.{mode} see-through",
+             *see_through(EDITOR_RULES, t.editor[mode], {"background", "surface", "chrome"}, alpha, desk)),
+            (f"syntax.{mode} see-through",
+             *see_through(SYNTAX_RULES, syntax, {"background"}, alpha, desk)),
+        ]
+        return [s for s in found if s[1]]
+
     return [
         s
         for mode in MODES
         for s in (
+            *translucent(mode),
             (f"terminal.{mode}", TERMINAL_RULES[mode], t.terminal[mode]),
             (f"roles.{mode}", ROLE_RULES, t.roles[mode]),
             (f"surfaces.{mode}", STEP_RULES, t.roles[mode]),
