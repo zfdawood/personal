@@ -64,10 +64,12 @@ Singleton {
     // Semantic roles so widgets read intent, not color.
     readonly property color accent:        set.accent          // fills: meters, focus
     readonly property color warning:       set.warning
+    readonly property color alert:         set.alert           // warning, as text
     readonly property color good:          set.good
     readonly property color media:         set.media
     readonly property color accentSolid:   set.accentSolid     // filled surface with text on it
-    readonly property color onAccentSolid: set.onAccentSolid   // …the text
+    readonly property color textOnAccent:  set.onAccentSolid   // …the text on it (tokens: onAccentSolid;
+    // QML reads a property named on + Capital as a signal handler, so it can't keep that name)
     readonly property color scanline:      set.scanline
     readonly property color desk:          set.desk          // what the papers lie on
     readonly property color shadow:        set.shadow        // hard card shadow

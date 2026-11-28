@@ -30,7 +30,7 @@ import sys
 from dataclasses import dataclass
 from typing import Mapping
 
-from tokens import MODES, Colors, load
+from tokens import MODES, Colors, Tokens, load
 
 AA = 4.5
 AAA = 7.0
@@ -125,6 +125,8 @@ ROLE_RULES: list[Rule] = [
     Rule("focusBorder", "bgPrimary", NON_TEXT, "focused window edge, lit side"),
     Rule("focusBorderShade", "bgPrimary", NON_TEXT, "focused window edge, shaded side"),
     Rule("pencil", "bgPrimary", AA, "the clock, pencilled in"),
+    Rule("alert", "bgPrimary", AA, "login errors"),
+    Rule("textPrimary", "bgAlt", AA, "typed text in a slot (launcher, login)"),
 ]
 
 
@@ -252,26 +254,42 @@ def _report(title: str, rules: list[Rule], colors: Colors, tty: bool) -> list[Re
     return results
 
 
+def sections(t: Tokens) -> list[tuple[str, list, Mapping[str, str]]]:
+    """Every check, as (title, rules, the colors they name): the one list that
+    `check` prints and tools/palette.py (the settings menu's color picker) reads."""
+    return [
+        s
+        for mode in MODES
+        for s in (
+            (f"terminal.{mode}", TERMINAL_RULES[mode], t.terminal[mode]),
+            (f"roles.{mode}", ROLE_RULES, t.roles[mode]),
+            (f"surfaces.{mode}", STEP_RULES, t.roles[mode]),
+            (f"web.{mode}", WEB_RULES, t.web[mode]),
+            (f"web surfaces.{mode}", WEB_STEPS, t.web[mode]),
+            (f"editor.{mode}", EDITOR_RULES, t.editor[mode]),
+            (
+                f"syntax.{mode}",
+                SYNTAX_RULES,
+                {"background": t.editor[mode]["background"], **{f"syntax.{k}": v for k, v in t.syntax[mode].items()}},
+            ),
+        )
+    ]
+
+
+def measure(rules: list, colors: Mapping[str, str]) -> list[Result | StepResult]:
+    """Rules are contrast `Rule`s or lightness `Step`s; a section holds one kind."""
+    if rules and isinstance(rules[0], Step):
+        return [StepResult(r, lightness_step(colors[r.upper], colors[r.lower])) for r in rules]
+    return evaluate(rules, colors)
+
+
 def check() -> int:
     t = load()
     tty = sys.stdout.isatty()
     results = [
         r
-        for mode in MODES
-        for r in (
-            *_report(f"terminal.{mode}", TERMINAL_RULES[mode], t.terminal[mode], tty),
-            *_report(f"roles.{mode}", ROLE_RULES, t.roles[mode], tty),
-            *_report_steps(f"surfaces.{mode}", STEP_RULES, t.roles[mode], tty),
-            *_report(f"web.{mode}", WEB_RULES, t.web[mode], tty),
-            *_report_steps(f"web surfaces.{mode}", WEB_STEPS, t.web[mode], tty),
-            *_report(f"editor.{mode}", EDITOR_RULES, t.editor[mode], tty),
-            *_report(
-                f"syntax.{mode}",
-                SYNTAX_RULES,
-                {"background": t.editor[mode]["background"], **{f"syntax.{k}": v for k, v in t.syntax[mode].items()}},
-                tty,
-            ),
-        )
+        for title, rules, colors in sections(t)
+        for r in (_report_steps if rules and isinstance(rules[0], Step) else _report)(title, rules, colors, tty)
     ]
     print(f"active mode: {t.mode}")
     failures = [r for r in results if not r.ok]

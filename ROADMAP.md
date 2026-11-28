@@ -17,8 +17,10 @@ good answer wherever one is listed.
 Things whose absence you'd notice on day one.
 
 ### Session & power
-- [ ] **Lock screen**: `hyprlock`, styled from tokens
-- [ ] **Idle handling**: `hypridle` (dim → lock → suspend; lock before sleep)
+- [~] **Lock screen**: Quickshell's login card (Lock.qml, PAM) on SUPER+L.
+      Tested offscreen against stubs; not yet in a live session
+- [~] **Idle handling**: `hypridle` locks at 10 minutes and before sleep;
+      no dim or suspend step yet
 - [ ] **Power menu**: lock / suspend / logout / reboot / shutdown. Today
       `SUPER+M` exits Hyprland instantly with no confirmation
 - [ ] **Polkit agent**: `hyprpolkitagent`; without one, GUI password
@@ -71,8 +73,9 @@ Rough edges that become annoying within a week.
 - [ ] **Bar interactions**: scroll on the volume meter to adjust, click to mute
 - [ ] **System tray**: `Quickshell.Services.SystemTray`, for apps that live
       there (chat clients, Steam, VPNs)
-- [ ] **File manager**: `SUPER+E` launches nautilus, which isn't installed or
-      themed. Either install + theme it, or bind a TUI (e.g. `yazi` in kitty)
+- [x] **File manager**: yazi in kitty on `SUPER+E`, themed from the editor
+      tokens (GTK file pickers are still the "GTK / Qt apps" item)
+- [x] **Palette editing**: Settings → Colors writes tokens.toml, checked live
 - [ ] **Departure Mono**: fetch automatically in `install.sh` instead of
       printing instructions
 
@@ -86,8 +89,8 @@ Rough edges that become annoying within a week.
 - [ ] Color picker (`hyprpicker`), handy for palette work
 - [ ] Removable-media automount (`udiskie`)
 - [x] Wallpaper: generated (`tools/wallpaper.py`), reroll from settings
-- [ ] Display manager / autologin (`greetd` + `tuigreet` fits a CLI setup);
-      today you start `start-hyprland` from a TTY
+- [~] Display manager: greetd + the login card (`make greeter`); not yet
+      booted in the VM
 - [ ] Keyboard-layout indicator (only matters with multiple layouts)
 - [ ] Colorblind-safe role set in `tokens.toml` (components already ask for
       `warning` / `good`, not specific hues)

@@ -19,6 +19,7 @@ from string import Template
 from typing import Callable, Mapping
 
 import brand
+import yazi
 from tokens import MODES, REPO, Tokens, load
 
 CONFIGS = REPO / "configs"
@@ -108,6 +109,8 @@ def settings(t: Tokens) -> str:
 OUTPUTS: dict[Path, Callable[[Tokens], str]] = {
     **{CONFIGS / "kitty" / f"colors-{m}.conf": partial(kitty, mode=m) for m in MODES},
     **{CONFIGS / "mako" / f"config-{m}": partial(mako, mode=m) for m in MODES},
+    **{CONFIGS / "yazi" / f"theme-{m}.toml": partial(yazi.theme, mode=m) for m in MODES},
+    **{CONFIGS / "yazi" / f"syntax-{m}.tmTheme": partial(yazi.tmtheme, mode=m) for m in MODES},
     CONFIGS / "hypr" / "colors.lua": hypr,
     CONFIGS / "quickshell" / "Tokens.qml": tokens_qml,
     CONFIGS / "cozy-archive" / "settings.json": settings,

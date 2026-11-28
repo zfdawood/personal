@@ -1,0 +1,137 @@
+# GENERATED from tokens.toml by tools/gen.py — edit tokens.toml, then run `make`.
+# yazi theme, editor.light + syntax.light. ~/.config/yazi/theme.toml is a
+# link to this file or its other-mode twin (apply.py switches it).
+
+[mgr]
+cwd             = { fg = "#5A3D94", bold = true }
+find_keyword    = { fg = "#8A5327", bold = true, underline = true }
+find_position   = { fg = "#5A3D94", bold = true }
+symlink_target  = { fg = "#776649", italic = true }
+marker_copied   = { fg = "#59634F", bg = "#59634F" }
+marker_cut      = { fg = "#904E3D", bg = "#904E3D" }
+marker_marked   = { fg = "#56626B", bg = "#56626B" }
+marker_selected = { fg = "#5A3D94", bg = "#5A3D94" }
+count_copied    = { fg = "#F3E9D8", bg = "#5A3D94", bold = true }
+count_cut       = { fg = "#F3E9D8", bg = "#5A3D94", bold = true }
+count_selected  = { fg = "#F3E9D8", bg = "#5A3D94", bold = true }
+border_symbol   = "│"
+border_style    = { fg = "#C9B896" }
+syntect_theme   = "~/.config/yazi/syntax-light.tmTheme"
+
+[tabs]
+active    = { fg = "#F3E9D8", bg = "#5A3D94", bold = true }
+inactive  = { fg = "#5C4A2E", bg = "#E3D5B8" }
+sep_inner = { open = "[", close = "]" }
+sep_outer = { open = "", close = "" }
+
+[mode]
+normal_main = { fg = "#F3E9D8", bg = "#5A3D94", bold = true }
+normal_alt  = { fg = "#5C4A2E", bg = "#E3D5B8" }
+select_main = { fg = "#F3E9D8", bg = "#5A3D94", bold = true }
+select_alt  = { fg = "#5C4A2E", bg = "#E3D5B8" }
+unset_main  = { fg = "#F3E9D8", bg = "#5A3D94", bold = true }
+unset_alt   = { fg = "#5C4A2E", bg = "#E3D5B8" }
+
+[indicator]
+parent  = { fg = "#2B2420", bg = "#D9CBB0" }
+current = { fg = "#2B2420", bg = "#D9CBB0" }
+preview = { underline = true }
+padding = { open = " ", close = " " }
+
+[status]
+overall         = { fg = "#5C4A2E" }
+sep_left        = { open = "", close = " " }
+sep_right       = { open = " ", close = "" }
+perm_type       = { fg = "#5A3D94" }
+perm_read       = { fg = "#59634F" }
+perm_write      = { fg = "#8A5327" }
+perm_exec       = { fg = "#904E3D" }
+perm_sep        = { fg = "#776649" }
+progress_label  = { fg = "#2B2420", bold = true }
+progress_normal = { fg = "#5A3D94", bg = "#E3D5B8" }
+progress_error  = { fg = "#904E3D", bg = "#E3D5B8" }
+
+[which]
+cols            = 3
+mask            = { bg = "#E3D5B8" }
+cand            = { fg = "#5A3D94", bold = true }
+rest            = { fg = "#5C4A2E" }
+desc            = { fg = "#2B2420" }
+separator       = " → "
+separator_style = { fg = "#5C4A2E" }
+
+[confirm]
+border     = { fg = "#C9B896" }
+title      = { fg = "#2B2420", bold = true }
+body       = { fg = "#2B2420" }
+list       = { fg = "#2B2420" }
+btn_yes    = { fg = "#F3E9D8", bg = "#5A3D94", bold = true }
+btn_no     = { fg = "#5C4A2E", bg = "#E3D5B8" }
+btn_labels = [ " [Y]es ", " (N)o " ]
+
+[spot]
+border   = { fg = "#C9B896" }
+title    = { fg = "#2B2420", bold = true }
+tbl_col  = { fg = "#5A3D94" }
+tbl_cell = { fg = "#2B2420" }
+
+[notify]
+title_info  = { fg = "#56626B", bold = true }
+title_warn  = { fg = "#8A5327", bold = true }
+title_error = { fg = "#904E3D", bold = true }
+
+[pick]
+border   = { fg = "#C9B896" }
+active   = { fg = "#F3E9D8", bg = "#5A3D94", bold = true }
+inactive = { fg = "#2B2420" }
+
+[input]
+border   = { fg = "#C9B896" }
+title    = { fg = "#2B2420", bold = true }
+value    = { fg = "#2B2420" }
+selected = { fg = "#2B2420", bg = "#D9CBB0" }
+
+[cmp]
+border       = { fg = "#C9B896" }
+active       = { fg = "#F3E9D8", bg = "#5A3D94", bold = true }
+inactive     = { fg = "#2B2420" }
+icon_file    = "  "
+icon_folder  = "/ "
+icon_command = "> "
+
+[tasks]
+border  = { fg = "#C9B896" }
+title   = { fg = "#2B2420", bold = true }
+hovered = { fg = "#2B2420", bg = "#D9CBB0" }
+
+[help]
+border  = { fg = "#C9B896" }
+chord   = { fg = "#5A3D94", bold = true }
+action  = { fg = "#2B2420" }
+hovered = { fg = "#2B2420", bg = "#D9CBB0" }
+
+[filetype]
+rules = [
+    { url = "*", is = "orphan", fg = "#904E3D", crossed = true },
+    { url = "*", is = "link", fg = "#56626B", italic = true },
+    { url = "*/", fg = "#5A3D94", bold = true },
+    { url = "*", is = "exec", fg = "#59634F" },
+    { mime = "image/*", fg = "#50645F" },
+    { mime = "{audio,video}/*", fg = "#904E3D" },
+    { mime = "application/{zip,gzip,x-tar,x-bzip*,x-7z-compressed,x-xz,zstd,x-rar}", fg = "#8A5327" },
+    { mime = "application/{pdf,epub+zip,msword,vnd.*}", fg = "#7E5656" },
+    { url = "*", fg = "#2B2420" },
+]
+
+[icon]
+globs = []
+dirs  = []
+files = []
+exts  = []
+conds = [
+    { if = "orphan", text = "!", fg = "#904E3D" },
+    { if = "link", text = "@", fg = "#56626B" },
+    { if = "dir", text = "/", fg = "#5A3D94" },
+    { if = "exec", text = "*", fg = "#59634F" },
+    { if = "!dir", text = " " },
+]

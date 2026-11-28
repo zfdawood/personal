@@ -99,7 +99,7 @@ PanelWindow {
                     font.pixelSize: Theme.fontSize
                     color: Theme.textPrimary
                     selectionColor: Theme.accentSolid
-                    selectedTextColor: Theme.onAccentSolid
+                    selectedTextColor: Theme.textOnAccent
                     onTextChanged: win.query = text
 
                     Text {
@@ -165,7 +165,7 @@ PanelWindow {
                             text: row.modelData.name
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSize
-                            color: row.current ? Theme.onAccentSolid : Theme.textPrimary
+                            color: row.current ? Theme.textOnAccent : Theme.textPrimary
                         }
                         Text {
                             anchors.verticalCenter: parent.verticalCenter

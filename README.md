@@ -53,6 +53,16 @@ the horror, minus the clinical grey-and-red.
 - **Settings menu** (SUPER+comma, or click the clock): day/night, keyboard
   layout, 12/24-hour clock, and "grow new vines". Changes apply at once.
 - **App launcher** (SUPER+Space): type to filter, arrows to choose, Enter to open.
+- **Colors** (Settings → Colors): the palette, edited in `tokens.toml` itself.
+  Repaint a swatch with lightness / chroma / hue meters (OKLCH, so equal steps
+  look equal) or a hex, or point a role at another swatch. Every check the
+  swatch or role takes part in is shown live, before → after, by
+  `contrast.py`'s own rules; Enter rewrites that one line of `tokens.toml`,
+  regenerates and redeploys. A save that fails a check asks twice.
+- **One login card** for the lock screen (SUPER+L, 10 minutes idle, before
+  sleep; PAM) and the boot greeter (greetd; `make greeter`). Same card, same tokens.
+- **Files** (SUPER+E): yazi in kitty, text first (`/ @ * !` markers, no icon
+  font), its theme and code-preview colors generated from the editor tokens.
 
 ## Structure
 
@@ -72,8 +82,10 @@ configs/
     Sys.qml         ← cpu + ram from /proc       (singleton)
     shell.qml       ← entry point
     bar/            ← Bar, Workspaces, Clock, BarMeter
-    menus/          ← Launcher, SettingsPanel
-  hypr/             ← hyprland.lua, colors.lua (GENERATED, both modes)
+    menus/          ← Launcher, SettingsPanel, ColorPanel (tools/palette.py)
+    LoginCard.qml   ← the login card; Lock.qml (PAM) and greeter.qml (greetd) drive it
+  hypr/             ← hyprland.lua, colors.lua (GENERATED, both modes), hypridle.conf
+  yazi/             ← yazi.toml; theme-{light,dark}.toml, syntax-*.tmTheme (GENERATED)
   kitty/            ← kitty.conf, colors-{light,dark}.conf (GENERATED)
   mako/             ← config-{light,dark} (GENERATED from templates/mako.config)
   cozy-archive/     ← settings.json defaults (GENERATED; installed once)
@@ -86,6 +98,22 @@ wallpaper if it isn't cached, and reloads what's running. The settings menu
 runs it on every change; Hyprland runs it at login. `make install` and
 `make colors` first copy `mode` from `tokens.toml` into `settings.json`, so the
 versioned file decides day or night; the menu's toggle lasts until the next install.
+(The color picker saves through `install.sh --colors-only` too, but keeps the
+menu's day/night.)
+
+## Login
+
+The lock screen and the boot greeter are one card (`LoginCard.qml`):
+
+- **Lock**: SUPER+L (SUPER+Shift+L with the QWERTY layout), `loginctl lock-session`, 10 minutes idle, or sleep
+  (hypridle). PAM checks the password (`quickshell/pam/password.conf`). If
+  Quickshell dies while locked, the screen stays covered; unlock from a TTY
+  with `loginctl unlock-session`.
+- **Greeter**: `make greeter` (sudo) installs the shell to
+  `/usr/share/cozy-archive/quickshell`, a bare Hyprland for greetd, and
+  `/etc/greetd/config.toml` (backing up the old one). It offers your user and
+  starts `start-hyprland`. Then `sudo systemctl enable greetd`. Re-run
+  `make greeter` after changing tokens or the card.
 
 **To change a color, edit `tokens.toml`, then `make` (and `make colors` to
 deploy).** Quickshell, Hyprland,
@@ -133,8 +161,8 @@ Hand-written, and read only through generated variables: `templates/web/componen
 
 Hyprland (≥0.57, which reads only the Lua config), Quickshell (>0.3.0),
 kitty, mako, Python 3.11+ (stdlib only: wallpaper and settings). On Arch, all
-from the official repos: `sudo pacman -S hyprland quickshell kitty mako python nautilus`.
-nautilus is bound to `SUPER+E` (vm-guest-setup.sh installs it). `make fonts`
+from the official repos: `sudo pacman -S hyprland quickshell kitty mako python yazi file hypridle greetd`.
+yazi is bound to `SUPER+E`. `make fonts`
 fetches the brand's fonts (JetBrains Mono, Newsreader, Kalam, Archivo).
 
 ## Install

@@ -9,6 +9,7 @@ install.sh copies this, wallpaper.py, tokens.py and tokens.toml to
 only switches links and regenerates nothing but the wallpaper:
 
     mode           kitty/colors.conf → colors-<mode>.conf, mako/config → config-<mode>,
+                   yazi/theme.toml → theme-<mode>.toml,
                    hypr/settings.lua (Hyprland picks its colors), wallpaper
     keyboard       hypr/settings.lua (layout + focus keys)
     clock24h       read by Quickshell straight from settings.json
@@ -116,6 +117,8 @@ def main(argv: list[str]) -> int:
         relink(CONFIG / "kitty" / "colors.conf", f"colors-{mode}.conf")
     if (CONFIG / "mako").is_dir():
         relink(CONFIG / "mako" / "config", f"config-{mode}")
+    if (CONFIG / "yazi").is_dir():
+        relink(CONFIG / "yazi" / "theme.toml", f"theme-{mode}.toml")   # read when yazi starts
     if (CONFIG / "hypr").is_dir():
         write_hypr_settings(s)
     ensure_wallpaper(s)

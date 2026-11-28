@@ -1,4 +1,4 @@
-.PHONY: gen check preview hooks install colors fonts site skills zed vscode
+.PHONY: gen check preview hooks install colors fonts greeter site skills zed vscode
 
 # Regenerate every app's colors from tokens.toml.
 gen:
@@ -8,6 +8,9 @@ gen:
 check:
 	@python3 tools/gen.py --check
 	@python3 tools/contrast.py
+	@# QML reads `property … onFoo` as a signal handler and the property comes back
+	@# empty (Theme.onAccentSolid drew black text). Keep "on" off property names.
+	@! grep -rnE 'property +[A-Za-z<>]+ +on[A-Z]' configs/quickshell || { echo "QML property named on<Capital> (see above): rename it" >&2; exit 1; }
 
 # Truecolor samples of both terminal palettes, each on its own background.
 preview:
@@ -28,6 +31,11 @@ install: gen
 # Fetch the brand's fonts (tokens.toml [type]) into ~/.local/share/fonts.
 fonts:
 	@./install.sh --fonts
+
+# The boot greeter: the lock screen's login card, shown by greetd (needs sudo;
+# see install.sh --greeter). Re-run after changing tokens or the cards.
+greeter: gen
+	@./install.sh --greeter
 
 # Regenerate and redeploy only the generated color files, then reload running
 # apps (and repaint the wallpaper) — the quick path after editing a color in

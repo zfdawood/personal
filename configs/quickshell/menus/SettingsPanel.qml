@@ -36,6 +36,9 @@ PanelWindow {
         { label: "Wallpaper",
           choices: [[null, "Grow new vines"]],
           act: () => Settings.wallpaperSeed = Settings.wallpaperSeed + 1 },
+        { label: "Colors",
+          choices: [[null, "Edit the palette"]],
+          act: () => Menus.toggleColors() },
     ]
     property int focusRow: 0
 
@@ -146,7 +149,7 @@ PanelWindow {
                                     text: chip.modelData[1]
                                     font.family: Theme.fontFamily
                                     font.pixelSize: Theme.fontSize
-                                    color: chip.chosen ? Theme.onAccentSolid : Theme.textPrimary
+                                    color: chip.chosen ? Theme.textOnAccent : Theme.textPrimary
                                 }
 
                                 MouseArea {

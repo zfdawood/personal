@@ -10,14 +10,27 @@ Singleton {
     id: root
     property bool launcherOpen: false
     property bool settingsOpen: false
+    // Survives Quickshell's reload: saving a color rewrites Tokens.qml, which
+    // reloads the shell, and the picker should still be open afterwards.
+    property alias colorsOpen: persist.colorsOpen
+
+    PersistentProperties {
+        id: persist
+        reloadableId: "menus"
+        property bool colorsOpen: false
+    }
 
     function toggleLauncher() {
-        settingsOpen = false
+        settingsOpen = false; colorsOpen = false
         launcherOpen = !launcherOpen
     }
     function toggleSettings() {
-        launcherOpen = false
+        launcherOpen = false; colorsOpen = false
         settingsOpen = !settingsOpen
+    }
+    function toggleColors() {
+        launcherOpen = false; settingsOpen = false
+        colorsOpen = !colorsOpen
     }
 
     IpcHandler {
@@ -27,5 +40,9 @@ Singleton {
     IpcHandler {
         target: "settings"
         function toggle(): void { root.toggleSettings() }
+    }
+    IpcHandler {
+        target: "colors"
+        function toggle(): void { root.toggleColors() }
     }
 }

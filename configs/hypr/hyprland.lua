@@ -23,12 +23,13 @@ local c = require("./colors.lua")[mode]
 --   "dvorak"         a plain keyboard; Hyprland remaps it to Dvorak
 --   "dvorak-native"  the keyboard itself sends Dvorak (QMK/ZMK firmware), so
 --                    Hyprland must NOT remap it again; Dvorak focus keys only
+-- `lock` is SUPER+L, except on QWERTY, where L is already "focus right".
 local keyboard = settings.keyboard or "dvorak-native"
 
 local layouts = {
-    ["qwerty"]        = { variant = "",       left = "H", down = "J", up = "K", right = "L" },
-    ["dvorak"]        = { variant = "dvorak", left = "D", down = "H", up = "T", right = "N" },
-    ["dvorak-native"] = { variant = "",       left = "D", down = "H", up = "T", right = "N" },
+    ["qwerty"]        = { variant = "",       left = "H", down = "J", up = "K", right = "L", lock = "SHIFT + L" },
+    ["dvorak"]        = { variant = "dvorak", left = "D", down = "H", up = "T", right = "N", lock = "L" },
+    ["dvorak-native"] = { variant = "",       left = "D", down = "H", up = "T", right = "N", lock = "L" },
 }
 local kb = assert(layouts[keyboard],
     "keyboard must be \"qwerty\", \"dvorak\" or \"dvorak-native\"")
@@ -51,6 +52,7 @@ local share = (os.getenv("XDG_DATA_HOME") or (os.getenv("HOME") .. "/.local/shar
 hl.on("hyprland.start", function()
     hl.exec_cmd("python3 " .. share .. "/apply.py --startup; quickshell")
     hl.exec_cmd("mako")
+    hl.exec_cmd("hypridle")       -- locks on idle and before sleep (hypridle.conf)
 end)
 
 -- A border that's flat-shaded, not smoothly blended: five stops of the lit
@@ -133,11 +135,15 @@ local function key(k) return mod .. " + " .. k end
 hl.bind(key("Return"), hl.dsp.exec_cmd(term))
 hl.bind(key("Q"),      hl.dsp.window.close())
 hl.bind(key("M"),      hl.dsp.exit())
-hl.bind(key("E"),      hl.dsp.exec_cmd("nautilus"))
+hl.bind(key("E"),      hl.dsp.exec_cmd(term .. " --class yazi -e yazi"))   -- files: yazi, themed from tokens
 hl.bind(key("V"),      hl.dsp.window.float({ action = "toggle" }))
 hl.bind(key("F"),      hl.dsp.window.fullscreen())
 hl.bind(key("Space"),  hl.dsp.exec_cmd("quickshell ipc call launcher toggle"))
 hl.bind(key("comma"),  hl.dsp.exec_cmd("quickshell ipc call settings toggle"))
+-- Lock: Quickshell's login card (Lock.qml). Through logind, so hypridle and
+-- anything else that locks the session all land in the same place.
+-- (Not SUPER+Escape: VM viewers keep that one for themselves.)
+hl.bind(key(kb.lock), hl.dsp.exec_cmd("pgrep -x hypridle >/dev/null && loginctl lock-session || quickshell ipc call lock lock"))
 
 -- Focus (vim positions for the chosen keyboard, + arrows)
 for _, pair in ipairs({

@@ -12,10 +12,15 @@ import "menus" as Overlay
 //   Bar          the top bar (one per screen)
 //   Launcher     SUPER+Space
 //   SettingsPanel SUPER+comma, or click the clock
+//   ColorPanel   Settings → Colors: edits tokens.toml (tools/palette.py)
+//   Lock         SUPER+L, idle, before sleep (the login card, on PAM)
+//   (greeter.qml is a second entry point: the same card at boot, on greetd)
 Scope {
     id: root
     Background {}
     Bar.Bar {}
     Overlay.Launcher {}
     Overlay.SettingsPanel {}
+    Overlay.ColorPanel {}
+    Lock {}
 }

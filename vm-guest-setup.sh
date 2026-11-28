@@ -16,7 +16,7 @@ trap 'rm -rf "$tmp"' EXIT
 # ── 1. Packages (Quickshell is in [extra] now; no AUR build needed) ───────
 c "Updating + installing packages (needs sudo)…"
 sudo pacman -Syu --needed --noconfirm \
-    hyprland quickshell kitty mako python nautilus \
+    hyprland quickshell kitty mako python yazi file hypridle greetd \
     git jq socat \
     qt6-base qt6-declarative qt6-svg qt6-wayland \
     ttf-jetbrains-mono noto-fonts wireplumber
@@ -45,6 +45,6 @@ cat <<'EOF'
   │      start-hyprland                                    │
   │  SUPER+Return = kitty      SUPER+Space = launcher      │
   │  SUPER+comma = settings    SUPER+Q = close window      │
-  │  SUPER+E = files (nautilus)                            │
+  │  SUPER+E = files (yazi)      SUPER+L = lock             │
   └────────────────────────────────────────────────────────┘
 EOF
